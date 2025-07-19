@@ -11,12 +11,21 @@
       padding: 20px; 
       background: linear-gradient(135deg, #d0e6f7, #f5faff); /* Nền xanh ngân hàng */
     }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header img {
+      height: 50px; /* Bạn có thể chỉnh size logo */
+    }
     h1 { 
       text-align: center; 
       border: 2px solid #007bff; 
       display: inline-block; 
       padding: 10px 20px; 
       border-radius: 8px; 
+      flex: 1;
     }
     label { display: block; margin-top: 10px; }
     input { width: 100%; padding: 8px; margin-top: 5px; }
@@ -28,7 +37,10 @@
   </style>
 </head>
 <body>
-  <h1>Tính Lãi Suất Vay (Liên hệ: 0964307247 Mr Thiên)</h1>
+  <header>
+    <img src="mirae-asset-logo_64dc329edcd97-removebg-preview.png" alt="Mirae Asset Logo" />
+    <h1>Tính Lãi Suất Vay (Liên hệ: 0964307247 Mr Thiên)</h1>
+  </header>
 
   <label>Ngày Giải Ngân:
     <input type="date" id="disbursalDate" />

@@ -3,20 +3,91 @@
 <head>
   <meta charset="UTF-8" />
   <title>Tính Lãi Suất Vay (Của Thiên)</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
-    h1 { text-align: center; }
-    label { display: block; margin-top: 10px; }
-    input { width: 100%; padding: 8px; margin-top: 5px; }
-    button { margin-top: 15px; padding: 10px 20px; margin-right: 10px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    table, th, td { border: 1px solid #333; }
-    th, td { padding: 8px; text-align: center; }
-    footer { text-align: center; margin-top: 40px; font-size: 14px; color: #555; }
+    body {
+      font-family: 'Quicksand', Arial, sans-serif;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #e6f0f8, #c3d9ee);
+    }
+
+    .title-box {
+      text-align: center;
+      border: 2px solid #003366;
+      background: #ffffffcc;
+      padding: 20px;
+      border-radius: 8px;
+      font-size: 24px;
+      color: #003366;
+      font-weight: 700;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      margin-right: 10px;
+      background: #003366;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #005ea2;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+      background: #fff;
+    }
+
+    table, th, td {
+      border: 1px solid #333;
+    }
+
+    th {
+      background: #003366;
+      color: white;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 14px;
+      color: #555;
+    }
   </style>
 </head>
 <body>
-  <h1>Tính Lãi Suất Vay (LH: 0964307247 Mr Thiên)</h1>
+  <div class="title-box">
+    TÍNH LÃI SUẤT VAY (LH: 0964307247 Mr Thiên)
+  </div>
 
   <label>Ngày Giải Ngân:
     <input type="date" id="disbursalDate" />
@@ -27,10 +98,10 @@
   </label>
 
   <label>Số Tiền Vay (VND):
-    <input type="text" id="loanAmount" value="0" oninput="formatNumber(this)" />
+    <input type="text" id="loanAmount" value="" oninput="formatNumber(this)" />
   </label>
 
-  <label>% Bảo Hiểm khoản vay (nếu có):
+  <label>% Bảo Hiểm Khoản Vay (nếu có):
     <input type="number" id="insurancePercent" value="7.7" step="0.1" />
   </label>
 
@@ -42,16 +113,15 @@
     <input type="number" id="months" value="24" />
   </label>
 
-  <button onclick="calculateLoan()">Tính Lịch Thanh Toán Tham Khảo</button>
+  <button onclick="calculateLoan()">Tính Lịch Thanh Toán</button>
   <button onclick="printPDF()">In PDF</button>
   <button onclick="exportExcel()">Xuất Excel</button>
 
   <div id="result"></div>
 
-  <footer>© Copyright 2025 Võ Quốc Thiên. All rights reserved.
-  Giải Pháp Vay Tiêu Dùng Uy Tín & Linh Hoạt</footer>
+  <footer>© Copyright 2025 Võ Quốc Thiên. Giải Pháp Vay Tiêu Dùng Uy Tín & Linh Hoạt</footer>
 
-  <!-- Thêm thư viện SheetJS -->
+  <!-- SheetJS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <script>
@@ -64,6 +134,7 @@
       return Number(str.replace(/\./g, "").replace(/,/g, ""));
     }
 
+    // Giữ đúng công thức gốc giảm dần:
     function calculateLoan() {
       const disbursalDate = new Date(document.getElementById('disbursalDate').value);
       const firstEmiDate = new Date(document.getElementById('firstEmiDate').value);
@@ -74,37 +145,47 @@
 
       const insurance = loanAmount * insurancePercent / 100;
       const totalLoan = loanAmount + insurance;
-      const monthlyRate = interestRate / 12 / 100;
-
-      const EMI = totalLoan * monthlyRate * Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1);
+      const interestRateDay = interestRate / 100 / 365;
       const collectionFee = 12000;
 
+      const principalPerMonth = totalLoan / months;
+
       let table = `<h2>Kết Quả</h2>
-                  <p>Tổng vay + BH: ${totalLoan.toLocaleString()} VND</p>
-                  <p>Phí thu hộ mỗi kỳ: ${collectionFee.toLocaleString()} VND (cố định đã cộng)</p>
-                  <p>Tổng thanh toán hàng tháng (gồm phí thu hộ): ${(EMI + collectionFee).toLocaleString(undefined, {maximumFractionDigits: 0})} VND</p>
+                  <p><strong>Tổng vay + BH:</strong> ${totalLoan.toLocaleString('vi-VN')} VND</p>
+                  <p><strong>Phí thu hộ mỗi kỳ:</strong> ${collectionFee.toLocaleString('vi-VN')} VND (cố định)</p>
                   <table id="repaymentTable">
-                  <tr><th>Kỳ</th><th>Ngày Thanh Toán</th><th>Tiền Gốc</th><th>Tiền Lãi</th><th>Tổng Tiền Đóng</th><th>Dư Nợ Còn Lại</th></tr>`;
+                  <tr><th>Kỳ</th><th>Ngày Thanh Toán</th><th>Số Ngày</th><th>Tiền Gốc</th><th>Tiền Lãi</th><th>Tổng Tiền Đóng</th><th>Dư Nợ Còn Lại</th></tr>`;
 
       let remaining = totalLoan;
+      let previousDate = new Date(disbursalDate);
 
       for (let i = 1; i <= months; i++) {
-        let interest = remaining * monthlyRate;
-        let principal = EMI - interest;
-
         let payDate = new Date(firstEmiDate);
         payDate.setMonth(payDate.getMonth() + i - 1);
 
+        let days = Math.round((payDate - previousDate) / (1000 * 60 * 60 * 24));
+        if (days < 28) days = 30;
+
+        let interest = remaining * interestRateDay * days;
+        let principal = principalPerMonth;
+        if (i === months) {
+          principal = remaining;
+        }
+
+        let totalPay = principal + interest + collectionFee;
+
         table += `<tr>
           <td>${i}</td>
-          <td>${payDate.toLocaleDateString()}</td>
-          <td>${principal.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-          <td>${interest.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-          <td>${(EMI + collectionFee).toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-          <td>${(remaining - principal).toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+          <td>${payDate.toLocaleDateString('vi-VN')}</td>
+          <td>${days}</td>
+          <td>${principal.toLocaleString('vi-VN', {maximumFractionDigits: 0})}</td>
+          <td>${interest.toLocaleString('vi-VN', {maximumFractionDigits: 0})}</td>
+          <td>${totalPay.toLocaleString('vi-VN', {maximumFractionDigits: 0})}</td>
+          <td>${(remaining - principal).toLocaleString('vi-VN', {maximumFractionDigits: 0})}</td>
         </tr>`;
 
         remaining -= principal;
+        previousDate = payDate;
       }
 
       table += `</table>`;
@@ -118,7 +199,7 @@
     function exportExcel() {
       let table = document.getElementById('repaymentTable');
       if (!table) {
-        alert("Vui lòng tính lịch thanh toán trước khi xuất Excel.");
+        alert("Vui lòng tính trước khi xuất Excel.");
         return;
       }
       let wb = XLSX.utils.table_to_book(table, { sheet: "LichThanhToan" });

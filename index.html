@@ -4,8 +4,20 @@
   <meta charset="UTF-8" />
   <title>Tính Lãi Suất Vay (Của Thiên)</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
-    h1 { text-align: center; }
+    body { 
+      font-family: Arial, sans-serif; 
+      max-width: 800px; 
+      margin: 20px auto; 
+      padding: 20px; 
+      background: linear-gradient(135deg, #d0e6f7, #f5faff); /* Nền xanh ngân hàng */
+    }
+    h1 { 
+      text-align: center; 
+      border: 2px solid #007bff; 
+      display: inline-block; 
+      padding: 10px 20px; 
+      border-radius: 8px; 
+    }
     label { display: block; margin-top: 10px; }
     input { width: 100%; padding: 8px; margin-top: 5px; }
     button { margin-top: 15px; padding: 10px 20px; margin-right: 10px; }
@@ -27,7 +39,7 @@
   </label>
 
   <label>Số Tiền Vay (VND):
-    <input type="text" id="loanAmount" value="0" oninput="formatNumber(this)" />
+    <input type="text" id="loanAmount" value="" oninput="formatNumber(this)" />
   </label>
 
   <label>% Bảo Hiểm Khoản Vay (nếu có):

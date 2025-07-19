@@ -2,126 +2,150 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>Tính Lãi Suất Vay (Của Thiên)</title>
+  <title>Tính Lãi Suất Vay - Mirae Asset</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
-    h1 { text-align: center; }
-    label { display: block; margin-top: 10px; }
-    input { width: 100%; padding: 8px; margin-top: 5px; }
-    button { margin-top: 15px; padding: 10px 20px; margin-right: 10px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    table, th, td { border: 1px solid #333; }
-    th, td { padding: 8px; text-align: center; }
-    footer { text-align: center; margin-top: 40px; font-size: 14px; color: #555; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #e6f0f8, #c3d9ee);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: #003366;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header img {
+      height: 80px;
+      display: block;
+      margin: 0 auto 10px;
+    }
+
+    .banner {
+      background: linear-gradient(90deg, #005ea2, #003366);
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 32px;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    }
+
+    main {
+      flex: 1;
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #003366;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background: #003366;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background: #005ea2;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    footer {
+      background: #003366;
+      color: white;
+      text-align: center;
+      padding: 10px;
+    }
+
+    @media(max-width: 600px) {
+      .banner {
+        font-size: 24px;
+        text-align: center;
+        padding: 0 10px;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Tính Lãi Suất Vay (Liên hệ: 0964307247 Mr Thiên)</h1>
+  <header>
+    <img src="mirae-asset-logo_64dc329edcd97.jpg" alt="Mirae Asset Logo" />
+    <h1>Mirae Asset Finance Company</h1>
+  </header>
 
-  <label>Ngày Giải Ngân:
-    <input type="date" id="disbursalDate" />
-  </label>
+  <div class="banner">
+    Giải Pháp Vay Tiêu Dùng Uy Tín & Linh Hoạt
+  </div>
 
-  <label>Ngày Kỳ Đóng Đầu Tiên:
-    <input type="date" id="firstEmiDate" />
-  </label>
+  <main>
+    <h2>Tính Lãi Suất Vay</h2>
+    <label for="loanAmount">Số tiền vay (VND):</label>
+    <input type="number" id="loanAmount" placeholder="Nhập số tiền vay">
 
-  <label>Số Tiền Vay (VND):
-    <input type="text" id="loanAmount" value="0" oninput="formatNumber(this)" />
-  </label>
+    <label for="interestRate">Lãi suất (%/năm):</label>
+    <input type="number" id="interestRate" placeholder="Nhập lãi suất">
 
-  <label>% Bảo Hiểm khoản vay (nếu có):
-    <input type="number" id="insurancePercent" value="7.7" step="0.1" />
-  </label>
+    <label for="loanTerm">Thời hạn vay (tháng):</label>
+    <input type="number" id="loanTerm" placeholder="Nhập số tháng vay">
 
-  <label>Lãi Suất (%/năm):
-    <input type="number" id="interestRate" value="52" />
-  </label>
+    <button onclick="calculate()">Tính toán</button>
 
-  <label>Số Kỳ Vay (tháng):
-    <input type="number" id="months" value="24" />
-  </label>
+    <div id="result"></div>
+  </main>
 
-  <button onclick="calculateLoan()">Tính Lịch Thanh Toán Tham Khảo</button>
-  <button onclick="printPDF()">In PDF</button>
-  <button onclick="exportExcel()">Xuất Excel</button>
-
-  <div id="result"></div>
-
-  <footer>© Copyright 2025 Võ Quốc Thiên</footer>
-
-  <!-- Thêm thư viện SheetJS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <footer>
+    &copy; 2025 Võ Quốc Thiên. All rights reserved.
+  </footer>
 
   <script>
-    function formatNumber(input) {
-      let value = input.value.replace(/\D/g, "");
-      input.value = Number(value).toLocaleString('vi-VN');
-    }
+    function calculate() {
+      const amount = parseFloat(document.getElementById('loanAmount').value);
+      const rate = parseFloat(document.getElementById('interestRate').value) / 100 / 12;
+      const months = parseInt(document.getElementById('loanTerm').value);
 
-    function parseNumber(str) {
-      return Number(str.replace(/\./g, "").replace(/,/g, ""));
-    }
-
-    function calculateLoan() {
-      const disbursalDate = new Date(document.getElementById('disbursalDate').value);
-      const firstEmiDate = new Date(document.getElementById('firstEmiDate').value);
-      const loanAmount = parseNumber(document.getElementById('loanAmount').value);
-      const insurancePercent = Number(document.getElementById('insurancePercent').value);
-      const interestRate = Number(document.getElementById('interestRate').value);
-      const months = Number(document.getElementById('months').value);
-
-      const insurance = loanAmount * insurancePercent / 100;
-      const totalLoan = loanAmount + insurance;
-      const monthlyRate = interestRate / 12 / 100;
-
-      const EMI = totalLoan * monthlyRate * Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1);
-      const collectionFee = 12000;
-
-      let table = `<h2>Kết Quả</h2>
-                  <p>Tổng vay + BH: ${totalLoan.toLocaleString()} VND</p>
-                  <p>Phí thu hộ mỗi kỳ: ${collectionFee.toLocaleString()} VND (cố định đã cộng)</p>
-                  <p>Tổng thanh toán hàng tháng (gồm phí thu hộ): ${(EMI + collectionFee).toLocaleString(undefined, {maximumFractionDigits: 0})} VND</p>
-                  <table id="repaymentTable">
-                  <tr><th>Kỳ</th><th>Ngày Thanh Toán</th><th>Tiền Gốc</th><th>Tiền Lãi</th><th>Tổng Tiền Đóng</th><th>Dư Nợ Còn Lại</th></tr>`;
-
-      let remaining = totalLoan;
-
-      for (let i = 1; i <= months; i++) {
-        let interest = remaining * monthlyRate;
-        let principal = EMI - interest;
-
-        let payDate = new Date(firstEmiDate);
-        payDate.setMonth(payDate.getMonth() + i - 1);
-
-        table += `<tr>
-          <td>${i}</td>
-          <td>${payDate.toLocaleDateString()}</td>
-          <td>${principal.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-          <td>${interest.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-          <td>${(EMI + collectionFee).toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-          <td>${(remaining - principal).toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-        </tr>`;
-
-        remaining -= principal;
-      }
-
-      table += `</table>`;
-      document.getElementById('result').innerHTML = table;
-    }
-
-    function printPDF() {
-      window.print();
-    }
-
-    function exportExcel() {
-      let table = document.getElementById('repaymentTable');
-      if (!table) {
-        alert("Vui lòng tính lịch thanh toán trước khi xuất Excel.");
+      if (isNaN(amount) || isNaN(rate) || isNaN(months) || amount <= 0 || rate <= 0 || months <= 0) {
+        document.getElementById('result').innerHTML = "Vui lòng nhập đầy đủ và hợp lệ.";
         return;
       }
-      let wb = XLSX.utils.table_to_book(table, { sheet: "LichThanhToan" });
-      XLSX.writeFile(wb, "Lich_Thanh_Toan.xlsx");
+
+      // Công thức trả góp đều (lãi giảm dần)
+      const monthly = amount * rate * Math.pow(1 + rate, months) / (Math.pow(1 + rate, months) - 1);
+      const totalPayment = monthly * months;
+
+      document.getElementById('result').innerHTML =
+        `Số tiền trả hàng tháng (ước tính): <strong>${monthly.toLocaleString('vi-VN')} VND</strong><br>
+         Tổng tiền phải trả: <strong>${totalPayment.toLocaleString('vi-VN')} VND</strong>`;
     }
   </script>
 </body>

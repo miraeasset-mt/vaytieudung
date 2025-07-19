@@ -4,8 +4,20 @@
   <meta charset="UTF-8" />
   <title>Tính Lãi Suất Vay (Của Thiên)</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
-    h1 { text-align: center; }
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #d0e6f7, #f5faff);
+    }
+    h1 {
+      text-align: center;
+      border: 2px solid #007bff;
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+    }
     label { display: block; margin-top: 10px; }
     input { width: 100%; padding: 8px; margin-top: 5px; }
     button { margin-top: 15px; padding: 10px 20px; margin-right: 10px; }
@@ -56,7 +68,11 @@
   <script>
     function formatNumber(input) {
       let value = input.value.replace(/\D/g, "");
-      input.value = Number(value).toLocaleString('vi-VN');
+      if (value) {
+        input.value = Number(value).toLocaleString('vi-VN');
+      } else {
+        input.value = "";
+      }
     }
 
     function parseNumber(str) {
@@ -69,60 +85,3 @@
       const loanAmount = parseNumber(document.getElementById('loanAmount').value);
       const insurancePercent = Number(document.getElementById('insurancePercent').value);
       const interestRate = Number(document.getElementById('interestRate').value);
-      const months = Number(document.getElementById('months').value);
-
-      const insurance = loanAmount * insurancePercent / 100;
-      const totalLoan = loanAmount + insurance;
-      const monthlyRate = interestRate / 12 / 100;
-
-      const EMI = totalLoan * monthlyRate * Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1);
-      const collectionFee = 12000;
-
-      let table = `<h2>Kết Quả</h2>
-                  <p>Tổng vay + BH: ${totalLoan.toLocaleString()} VND</p>
-                  <p>Phí thu hộ mỗi kỳ: ${collectionFee.toLocaleString()} VND (cố định)</p>
-                  <p>Tổng thanh toán hàng tháng (gồm phí thu hộ): ${(EMI + collectionFee).toLocaleString(undefined, {maximumFractionDigits: 0})} VND</p>
-                  <table id="repaymentTable">
-                  <tr><th>Kỳ</th><th>Ngày Thanh Toán</th><th>Tiền Gốc</th><th>Tiền Lãi</th><th>Tổng Tiền Đóng</th><th>Dư Nợ Còn Lại</th></tr>`;
-
-      let remaining = totalLoan;
-
-      for (let i = 1; i <= months; i++) {
-        let interest = remaining * monthlyRate;
-        let principal = EMI - interest;
-
-        let payDate = new Date(firstEmiDate);
-        payDate.setMonth(payDate.getMonth() + i - 1);
-
-        table += `<tr>
-          <td>${i}</td>
-          <td>${payDate.toLocaleDateString()}</td>
-          <td>${principal.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-          <td>${interest.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-          <td>${(EMI + collectionFee).toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-          <td>${(remaining - principal).toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-        </tr>`;
-
-        remaining -= principal;
-      }
-
-      table += `</table>`;
-      document.getElementById('result').innerHTML = table;
-    }
-
-    function printPDF() {
-      window.print();
-    }
-
-    function exportExcel() {
-      let table = document.getElementById('repaymentTable');
-      if (!table) {
-        alert("Vui lòng tính lịch thanh toán trước khi xuất Excel.");
-        return;
-      }
-      let wb = XLSX.utils.table_to_book(table, { sheet: "LichThanhToan" });
-      XLSX.writeFile(wb, "Lich_Thanh_Toan.xlsx");
-    }
-  </script>
-</body>
-</html>

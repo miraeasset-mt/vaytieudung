@@ -11,21 +11,12 @@
       padding: 20px; 
       background: linear-gradient(135deg, #d0e6f7, #f5faff); /* Nền xanh ngân hàng */
     }
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    header img {
-      height: 50px; /* Bạn có thể chỉnh size logo */
-    }
     h1 { 
       text-align: center; 
       border: 2px solid #007bff; 
       display: inline-block; 
       padding: 10px 20px; 
       border-radius: 8px; 
-      flex: 1;
     }
     label { display: block; margin-top: 10px; }
     input { width: 100%; padding: 8px; margin-top: 5px; }
@@ -37,10 +28,7 @@
   </style>
 </head>
 <body>
-  <header>
-    <img src="mirae-asset-logo_64dc329edcd97-removebg-preview.png" alt="Mirae Asset Logo" />
-    <h1>Tính Lãi Suất Vay (Liên hệ: 0964307247 Mr Thiên)</h1>
-  </header>
+  <h1>Tính Lãi Suất Vay (Liên hệ: 0964307247 Mr Thiên)</h1>
 
   <label>Ngày Giải Ngân:
     <input type="date" id="disbursalDate" />
@@ -102,12 +90,12 @@
       const EMI = totalLoan * monthlyRate * Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1);
       const collectionFee = 12000;
 
-      let table = `<h2>Kết Quả</h2>
+      let table = <h2>Kết Quả</h2>
                   <p>Tổng vay + BH: ${totalLoan.toLocaleString()} VND</p>
                   <p>Phí thu hộ mỗi kỳ: ${collectionFee.toLocaleString()} VND (cố định)</p>
                   <p>Tổng thanh toán hàng tháng (gồm phí thu hộ): ${(EMI + collectionFee).toLocaleString(undefined, {maximumFractionDigits: 0})} VND</p>
                   <table id="repaymentTable">
-                  <tr><th>Kỳ</th><th>Ngày Thanh Toán</th><th>Tiền Gốc</th><th>Tiền Lãi</th><th>Tổng Tiền Đóng</th><th>Dư Nợ Còn Lại</th></tr>`;
+                  <tr><th>Kỳ</th><th>Ngày Thanh Toán</th><th>Tiền Gốc</th><th>Tiền Lãi</th><th>Tổng Tiền Đóng</th><th>Dư Nợ Còn Lại</th></tr>;
 
       let remaining = totalLoan;
 
@@ -118,19 +106,19 @@
         let payDate = new Date(firstEmiDate);
         payDate.setMonth(payDate.getMonth() + i - 1);
 
-        table += `<tr>
+        table += <tr>
           <td>${i}</td>
           <td>${payDate.toLocaleDateString()}</td>
           <td>${principal.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
           <td>${interest.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
           <td>${(EMI + collectionFee).toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
           <td>${(remaining - principal).toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-        </tr>`;
+        </tr>;
 
         remaining -= principal;
       }
 
-      table += `</table>`;
+      table += </table>;
       document.getElementById('result').innerHTML = table;
     }
 

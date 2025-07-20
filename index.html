@@ -10,10 +10,6 @@
       margin: 20px auto;
       padding: 20px;
       background: linear-gradient(135deg, #d0e6f7, #f5faff);
-      -webkit-user-select: none; /* Chặn select trên Chrome, Safari */
-      -moz-user-select: none;    /* Chặn select trên Firefox */
-      -ms-user-select: none;     /* Chặn select trên IE/Edge */
-      user-select: none;         /* Chặn select chuẩn */
     }
     h1 {
       text-align: center;
@@ -71,7 +67,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <script>
-    // Định dạng số tiền
     function formatNumber(input) {
       let value = input.value.replace(/\D/g, "");
       if (value) {
@@ -85,7 +80,6 @@
       return Number(str.replace(/\./g, ""));
     }
 
-    // Tính lịch thanh toán
     function calculateLoan() {
       const disbursalDate = new Date(document.getElementById('disbursalDate').value);
       const firstEmiDate = new Date(document.getElementById('firstEmiDate').value);
@@ -93,15 +87,6 @@
       const insurancePercent = Number(document.getElementById('insurancePercent').value);
       const interestRate = Number(document.getElementById('interestRate').value);
       const months = Number(document.getElementById('months').value);
-
-      if (isNaN(disbursalDate) || isNaN(firstEmiDate)) {
-        alert("Vui lòng nhập ngày giải ngân và ngày kỳ đóng đầu tiên!");
-        return;
-      }
-      if (loanAmount <= 0 || months <= 0 || interestRate <= 0) {
-        alert("Vui lòng nhập số tiền vay, lãi suất và số kỳ vay hợp lệ!");
-        return;
-      }
 
       const insurance = loanAmount * insurancePercent / 100;
       const totalLoan = loanAmount + insurance;
@@ -111,11 +96,11 @@
       const collectionFee = 12000;
 
       let table = `<h2>Kết Quả</h2>
-        <p>Tổng vay + BH: ${totalLoan.toLocaleString().replace(/,/g, '.')} VND</p>
-        <p>Phí thu hộ mỗi kỳ: ${collectionFee.toLocaleString().replace(/,/g, '.')} VND (cố định)</p>
-        <p>Tổng thanh toán hàng tháng (gồm phí thu hộ): ${(EMI + collectionFee).toLocaleString(undefined, {maximumFractionDigits: 0}).replace(/,/g, '.')} VND</p>
-        <table id="repaymentTable">
-        <tr><th>Kỳ</th><th>Ngày Thanh Toán</th><th>Tiền Gốc</th><th>Tiền Lãi</th><th>Tổng Tiền Đóng</th><th>Dư Nợ Còn Lại</th></tr>`;
+                  <p>Tổng vay + BH: ${totalLoan.toLocaleString().replace(/,/g, '.')} VND</p>
+                  <p>Phí thu hộ mỗi kỳ: ${collectionFee.toLocaleString().replace(/,/g, '.')} VND (cố định)</p>
+                  <p>Tổng thanh toán hàng tháng (gồm phí thu hộ): ${(EMI + collectionFee).toLocaleString(undefined, {maximumFractionDigits: 0}).replace(/,/g, '.')} VND</p>
+                  <table id="repaymentTable">
+                  <tr><th>Kỳ</th><th>Ngày Thanh Toán</th><th>Tiền Gốc</th><th>Tiền Lãi</th><th>Tổng Tiền Đóng</th><th>Dư Nợ Còn Lại</th></tr>`;
 
       let remaining = totalLoan;
 
@@ -129,17 +114,17 @@
         table += `<tr>
           <td>${i}</td>
           <td>${payDate.toLocaleDateString()}</td>
-          <td>${Math.round(principal).toLocaleString().replace(/,/g, '.')}</td>
-          <td>${Math.round(interest).toLocaleString().replace(/,/g, '.')}</td>
-          <td>${Math.round(EMI + collectionFee).toLocaleString().replace(/,/g, '.')}</td>
-          <td>${Math.round(remaining - principal).toLocaleString().replace(/,/g, '.')}</td>
+          <td>${principal.toLocaleString(undefined, {maximumFractionDigits: 0}).replace(/,/g, '.')}</td>
+          <td>${interest.toLocaleString(undefined, {maximumFractionDigits: 0}).replace(/,/g, '.')}</td>
+          <td>${(EMI + collectionFee).toLocaleString(undefined, {maximumFractionDigits: 0}).replace(/,/g, '.')}</td>
+          <td>${(remaining - principal).toLocaleString(undefined, {maximumFractionDigits: 0}).replace(/,/g, '.')}</td>
         </tr>`;
 
         remaining -= principal;
       }
 
       table += `</table>`;
-      table += `<p class="note">Đây chỉ là bảng tham khảo, vui lòng liên hệ trực tiếp nhân viên để được tư vấn cụ thể và chính xác.</p>`;
+      table += `<p class="note">Đây chỉ là bảng tham khảo, Vui lòng liên hệ trực tiếp nhân viên để được tư vấn cụ thể và chính xác.</p>`;
       document.getElementById('result').innerHTML = table;
     }
 
@@ -156,19 +141,6 @@
       let wb = XLSX.utils.table_to_book(table, { sheet: "LichThanhToan" });
       XLSX.writeFile(wb, "Lich_Thanh_Toan.xlsx");
     }
-
-    // Chống chuột phải
-    document.addEventListener('contextmenu', function(e) {
-      e.preventDefault();
-    });
-
-    // Chống Ctrl+C
-    document.addEventListener('keydown', function(e) {
-      if (e.ctrlKey && (e.key === 'c' || e.key === 'C')) {
-        e.preventDefault();
-        alert("Sao chép nội dung đã bị chặn!");
-      }
-    });
   </script>
 </body>
 </html>

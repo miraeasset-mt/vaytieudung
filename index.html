@@ -6,12 +6,51 @@
   <title>Tính Lãi Suất Vay (Của Thiên)</title>
   <style>
     body {
+      margin: 0;
+      padding: 0;
       font-family: Arial, sans-serif;
+      background: #f5faff;
+    }
+
+    .marquee {
+      width: 100vw;
+      position: relative;
+      overflow: hidden;
+      background: #007bff;
+      color: #fff;
+      padding: 12px 0;
+      font-weight: bold;
+      font-size: 16px;
+      box-sizing: border-box;
+      left: 50%;
+      right: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+    }
+
+    .marquee-content {
+      display: inline-block;
+      white-space: nowrap;
+      animation: marquee 15s linear infinite;
+    }
+
+    .marquee:hover .marquee-content {
+      animation-play-state: paused;
+    }
+
+    @keyframes marquee {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    .container {
       max-width: 800px;
       margin: 20px auto;
       padding: 20px;
       background: linear-gradient(135deg, #d0e6f7, #f5faff);
+      box-sizing: border-box;
     }
+
     h1 {
       text-align: center;
       border: 2px solid #007bff;
@@ -20,8 +59,16 @@
       border-radius: 8px;
       font-size: 28px;
     }
+
     label { display: block; margin-top: 10px; }
-    input { width: 100%; padding: 8px; margin-top: 5px; font-size: 16px; }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
     button {
       margin-top: 15px;
       padding: 12px 20px;
@@ -29,40 +76,25 @@
       font-size: 16px;
       cursor: pointer;
     }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+
     table, th, td { border: 1px solid #333; }
-    th, td { padding: 8px; text-align: center; font-size: 15px; }
+    th, td {
+      padding: 8px;
+      text-align: center;
+      font-size: 15px;
+    }
+
     .note { margin-top: 10px; font-style: italic; color: #333; }
     footer { text-align: center; margin-top: 40px; font-size: 14px; color: #555; }
 
-    /* Chữ chạy bằng animation - không lỗi */
-    .marquee {
-      width: 100%;
-      overflow: hidden;
-      background: #007bff;
-      color: #fff;
-      padding: 12px 0;
-      font-weight: bold;
-      font-size: 16px;
-    }
-    .marquee-content {
-      display: inline-block;
-      white-space: nowrap;
-      animation: marquee 15s linear infinite;
-    }
-    .marquee:hover .marquee-content {
-      animation-play-state: paused;
-    }
-    @keyframes marquee {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-
-    /* Responsive mobile */
+    /* Responsive */
     @media (max-width: 600px) {
-      body {
-        padding: 10px;
-      }
       h1 {
         font-size: 22px;
         padding: 8px 16px;
@@ -91,46 +123,48 @@
 </head>
 <body>
 
-  <!-- Chữ chạy fix lỗi -->
+  <!-- Chữ chạy fix lỗi full màn hình -->
   <div class="marquee">
     <div class="marquee-content">
       💸 Chào mừng bạn đến với công cụ Tính Lãi Suất Vay của Mr Thiên! 📞 Liên hệ Zalo: 0964307247 để được hỗ trợ nhanh chóng và uy tín! 🚀
     </div>
   </div>
 
-  <h1>Tính Lãi Suất Vay</h1>
+  <div class="container">
+    <h1>Tính Lãi Suất Vay</h1>
 
-  <label>Ngày Giải Ngân:
-    <input type="date" id="disbursalDate" />
-  </label>
+    <label>Ngày Giải Ngân:
+      <input type="date" id="disbursalDate" />
+    </label>
 
-  <label>Ngày Kỳ Đóng Đầu Tiên:
-    <input type="date" id="firstEmiDate" />
-  </label>
+    <label>Ngày Kỳ Đóng Đầu Tiên:
+      <input type="date" id="firstEmiDate" />
+    </label>
 
-  <label>Số Tiền Vay (VND):
-    <input type="text" id="loanAmount" value="" oninput="formatNumber(this)" />
-  </label>
+    <label>Số Tiền Vay (VND):
+      <input type="text" id="loanAmount" value="" oninput="formatNumber(this)" />
+    </label>
 
-  <label>% Bảo Hiểm Khoản Vay (nếu có):
-    <input type="number" id="insurancePercent" value="7.7" step="0.1" />
-  </label>
+    <label>% Bảo Hiểm Khoản Vay (nếu có):
+      <input type="number" id="insurancePercent" value="7.7" step="0.1" />
+    </label>
 
-  <label>Lãi Suất (%/năm):
-    <input type="number" id="interestRate" value="52" />
-  </label>
+    <label>Lãi Suất (%/năm):
+      <input type="number" id="interestRate" value="52" />
+    </label>
 
-  <label>Số Kỳ Vay (tháng):
-    <input type="number" id="months" value="24" />
-  </label>
+    <label>Số Kỳ Vay (tháng):
+      <input type="number" id="months" value="24" />
+    </label>
 
-  <button onclick="calculateLoan()">Tính Lịch Thanh Toán Tham Khảo</button>
-  <button onclick="printPDF()">In PDF</button>
-  <button onclick="exportExcel()">Xuất Excel</button>
+    <button onclick="calculateLoan()">Tính Lịch Thanh Toán Tham Khảo</button>
+    <button onclick="printPDF()">In PDF</button>
+    <button onclick="exportExcel()">Xuất Excel</button>
 
-  <div id="result"></div>
+    <div id="result"></div>
 
-  <footer>© Copyright 2025 Võ Quốc Thiên. Giải Pháp Vay Tiêu Dùng Uy Tín & Linh Hoạt</footer>
+    <footer>© Copyright 2025 Võ Quốc Thiên. Giải Pháp Vay Tiêu Dùng Uy Tín & Linh Hoạt</footer>
+  </div>
 
   <!-- Thư viện SheetJS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -212,7 +246,7 @@
     }
   </script>
 
-  <!-- Icon Zalo nổi -->
+  <!-- Icon Zalo -->
   <a href="https://zalo.me/0964307247" target="_blank" style="
     position: fixed;
     bottom: 20px;

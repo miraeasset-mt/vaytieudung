@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tính Lãi Suất Vay (Của Thiên)</title>
   <style>
     body {
@@ -17,31 +18,91 @@
       display: inline-block;
       padding: 10px 20px;
       border-radius: 8px;
+      font-size: 28px;
     }
     label { display: block; margin-top: 10px; }
-    input { width: 100%; padding: 8px; margin-top: 5px; }
-    button { margin-top: 15px; padding: 10px 20px; margin-right: 10px; }
+    input { width: 100%; padding: 8px; margin-top: 5px; font-size: 16px; }
+    button {
+      margin-top: 15px;
+      padding: 12px 20px;
+      margin-right: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
     table { border-collapse: collapse; width: 100%; margin-top: 20px; }
     table, th, td { border: 1px solid #333; }
-    th, td { padding: 8px; text-align: center; }
+    th, td { padding: 8px; text-align: center; font-size: 15px; }
     .note { margin-top: 10px; font-style: italic; color: #333; }
     footer { text-align: center; margin-top: 40px; font-size: 14px; color: #555; }
+
+    /* Chữ chạy mượt */
+    .marquee {
+      width: 100%;
+      overflow: hidden;
+      background: #007bff;
+      color: #fff;
+      padding: 12px 0;
+      font-weight: bold;
+      font-size: 16px;
+      position: relative;
+    }
+    .marquee-content {
+      display: inline-block;
+      white-space: nowrap;
+      position: absolute;
+      will-change: transform;
+      animation: scroll-left 15s linear infinite;
+    }
+    @keyframes scroll-left {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    .marquee:hover .marquee-content {
+      animation-play-state: paused;
+    }
+
+    /* Responsive cho mobile */
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      h1 {
+        font-size: 22px;
+        padding: 8px 16px;
+      }
+      .marquee {
+        font-size: 14px;
+        padding: 10px 0;
+      }
+      input, button {
+        font-size: 15px;
+      }
+      button {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+      table, th, td {
+        font-size: 13px;
+      }
+      /* Icon Zalo nhỏ lại */
+      a[href*="zalo"] img {
+        width: 50px;
+        height: 50px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Chữ chạy trên cùng -->
-  <marquee behavior="scroll" direction="left" style="
-    background: #007bff;
-    color: #fff;
-    padding: 12px 0;
-    font-weight: bold;
-    font-size: 16px;
-  ">
-    💸 Chào mừng bạn đến với công cụ Tính Lãi Suất Vay của Mr Thiên! 📞 Liên hệ Zalo: 0964307247 để được hỗ trợ nhanh chóng và uy tín! 🚀
-  </marquee>
+  <!-- Chữ chạy -->
+  <div class="marquee">
+    <div class="marquee-content">
+      💸 Chào mừng bạn đến với công cụ Tính Lãi Suất Vay của Mr Thiên! 📞 Liên hệ Zalo: 0964307247 để được hỗ trợ nhanh chóng và uy tín! 🚀
+    </div>
+  </div>
 
-  <h1>Tính Lãi Suất Vay </h1>
+  <h1>Tính Lãi Suất Vay</h1>
 
   <label>Ngày Giải Ngân:
     <input type="date" id="disbursalDate" />
@@ -75,7 +136,7 @@
 
   <footer>© Copyright 2025 Võ Quốc Thiên. Giải Pháp Vay Tiêu Dùng Uy Tín & Linh Hoạt</footer>
 
-  <!-- Thêm thư viện SheetJS -->
+  <!-- SheetJS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <script>
@@ -136,7 +197,7 @@
       }
 
       table += `</table>`;
-      table += `<p class="note">Đây chỉ là bảng tham khảo, Vui lòng liên hệ trực tiếp nhân viên để được tư vấn cụ thể và chính xác.</p>`;
+      table += `<p class="note">Đây chỉ là bảng tham khảo, vui lòng liên hệ trực tiếp nhân viên để được tư vấn cụ thể và chính xác.</p>`;
       document.getElementById('result').innerHTML = table;
     }
 
@@ -155,7 +216,7 @@
     }
   </script>
 
-  <!-- Zalo Floating Icon -->
+  <!-- Icon Zalo nổi -->
   <a href="https://zalo.me/0964307247" target="_blank" style="
     position: fixed;
     bottom: 20px;

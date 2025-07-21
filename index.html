@@ -35,7 +35,7 @@
     .note { margin-top: 10px; font-style: italic; color: #333; }
     footer { text-align: center; margin-top: 40px; font-size: 14px; color: #555; }
 
-    /* Chữ chạy mượt */
+    /* Chữ chạy bằng animation - không lỗi */
     .marquee {
       width: 100%;
       overflow: hidden;
@@ -44,24 +44,21 @@
       padding: 12px 0;
       font-weight: bold;
       font-size: 16px;
-      position: relative;
     }
     .marquee-content {
       display: inline-block;
       white-space: nowrap;
-      position: absolute;
-      will-change: transform;
-      animation: scroll-left 15s linear infinite;
-    }
-    @keyframes scroll-left {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
+      animation: marquee 15s linear infinite;
     }
     .marquee:hover .marquee-content {
       animation-play-state: paused;
     }
+    @keyframes marquee {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
 
-    /* Responsive cho mobile */
+    /* Responsive mobile */
     @media (max-width: 600px) {
       body {
         padding: 10px;
@@ -85,7 +82,6 @@
       table, th, td {
         font-size: 13px;
       }
-      /* Icon Zalo nhỏ lại */
       a[href*="zalo"] img {
         width: 50px;
         height: 50px;
@@ -95,7 +91,7 @@
 </head>
 <body>
 
-  <!-- Chữ chạy -->
+  <!-- Chữ chạy fix lỗi -->
   <div class="marquee">
     <div class="marquee-content">
       💸 Chào mừng bạn đến với công cụ Tính Lãi Suất Vay của Mr Thiên! 📞 Liên hệ Zalo: 0964307247 để được hỗ trợ nhanh chóng và uy tín! 🚀
@@ -136,7 +132,7 @@
 
   <footer>© Copyright 2025 Võ Quốc Thiên. Giải Pháp Vay Tiêu Dùng Uy Tín & Linh Hoạt</footer>
 
-  <!-- SheetJS -->
+  <!-- Thư viện SheetJS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <script>

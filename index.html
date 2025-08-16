@@ -3,156 +3,446 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tính Lãi Suất Vay (Của Thiên)</title>
+  <title>Tính Lãi Suất Vay (Của Thiên) – Bản Nâng Cao 2025 v2</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background: #f5faff;
+    :root{
+      --primary:#007bff; --bg:#f5faff; --card-grad:linear-gradient(135deg,#d0e6f7,#f5faff);
+      --text:#0f172a; --muted:#475569; --radius:14px;
     }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    h2 {
-      text-align: center;
-      color: #0077cc;
-    }
-    label {
-      display: block;
-      margin-top: 12px;
-      font-weight: bold;
-    }
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-    button {
-      background: #0077cc;
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    button:hover {
-      background: #005fa3;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    table, th, td {
-      border: 1px solid #ddd;
-    }
-    th, td {
-      padding: 10px;
-      text-align: center;
-    }
-    th {
-      background: #0077cc;
-      color: #fff;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font-family:Arial, Helvetica, sans-serif; background:var(--bg); color:var(--text); line-height:1.5}
+
+    .marquee{width:100vw; position:relative; overflow:hidden; background:var(--primary); color:#fff; padding:12px 0; font-weight:bold; font-size:16px; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw}
+    .marquee-content{display:inline-block; white-space:nowrap; animation:marquee 15s linear infinite; padding-left:100vw}
+    .marquee:hover .marquee-content{animation-play-state:paused}
+    @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+
+    .container{max-width:1000px; margin:20px auto; padding:20px; background:var(--card-grad); border-radius:var(--radius); box-shadow:0 10px 30px rgba(2,6,23,.08)}
+    h1{margin:0 auto 12px; text-align:center; border:2px solid var(--primary); display:inline-block; padding:10px 20px; border-radius:8px; font-size:28px}
+    .subtitle{margin:0 auto 20px; text-align:center; color:var(--muted); font-size:14px}
+
+    .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px}
+    label{display:block; font-weight:600; font-size:14px}
+    input, select{width:100%; padding:10px 12px; margin-top:6px; font-size:16px; border:1px solid #cbd5e1; border-radius:10px; outline:none; background:#fff}
+    input:focus, select:focus{border-color:var(--primary); box-shadow:0 0 0 3px rgba(0,123,255,.15)}
+
+    .row{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+    .actions{margin-top:14px; display:flex; flex-wrap:wrap; gap:10px}
+    button{padding:12px 16px; font-size:16px; cursor:pointer; border:none; border-radius:12px; background:var(--primary); color:#fff; box-shadow:0 6px 16px rgba(0,123,255,.2)}
+    button.secondary{background:#0ea5e9}
+    button.ghost{background:#e2e8f0; color:#0f172a}
+
+    .note{margin-top:10px; font-style:italic; color:#334155}
+
+    table{border-collapse:collapse; width:100%; margin-top:20px; background:#fff; border-radius:12px; overflow:hidden}
+    table th, table td{border:1px solid #e2e8f0; padding:10px; text-align:center; font-size:15px}
+    table th{background:#f1f5f9; position:sticky; top:0; z-index:1}
+
+    /* tfoot tổng đã bị xóa theo yêu cầu (không cần style) */
+
+    footer{text-align:center; margin-top:28px; font-size:14px; color:#555}
+
+    .pill{display:inline-block; border:1px dashed #93c5fd; padding:6px 10px; border-radius:999px; background:#eff6ff; color:#0c4a6e; font-size:13px}
+    .warn{background:#fff7ed; border:1px solid #fdba74; padding:10px 12px; border-radius:10px; color:#9a3412; font-size:14px}
+
+    .toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:8px}
+
+    @media (max-width:720px){
+      h1{font-size:22px; padding:8px 16px}
+      .marquee{font-size:14px; padding:10px 0}
+      .grid{grid-template-columns:1fr}
+      button{width:100%}
+      table th, table td{font-size:13px}
+      a[href*="zalo"] img{width:54px; height:54px}
     }
 
-    /* Ẩn các mục không cần hiển thị */
-    #phiThuHo,
-    #quyUocTinhLai,
-    #chinhSachLamTron {
-      display: none;
+    /* In/PDF gọn */
+    @media print{
+      .marquee, .actions, .note, footer, .toolbar, .zalo{display:none !important}
+      body{background:#fff}
+      .container{box-shadow:none; background:#fff}
     }
+
+    /* --- Ẩn 3 mục theo yêu cầu --- */
+    #phiThuHo, #quyUocTinhLai, #chinhSachLamTron { display: none; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Tính Lãi Suất Vay</h2>
-
-    <label for="soTienVay">Số tiền vay (VND):</label>
-    <input type="number" id="soTienVay" placeholder="Nhập số tiền vay">
-
-    <label for="laiSuat">Lãi suất (%/năm):</label>
-    <input type="number" id="laiSuat" step="0.01" placeholder="Nhập lãi suất %/năm">
-
-    <label for="soKyHan">Số kỳ (tháng):</label>
-    <input type="number" id="soKyHan" placeholder="Nhập số tháng vay">
-
-    <!-- Ẩn: Phí thu hộ -->
-    <div id="phiThuHo">
-      <label>Phí Thu Hộ mỗi kỳ (VND):</label>
-      <input type="number" id="phiThu" value="0">
-    </div>
-
-    <!-- Ẩn: Quy ước tính lãi -->
-    <div id="quyUocTinhLai">
-      <label>Quy ước tính lãi:</label>
-      <span>30/360 (mỗi tháng 30 ngày)</span>
-    </div>
-
-    <!-- Ẩn: Chính sách làm tròn -->
-    <div id="chinhSachLamTron">
-      <label>Chính sách làm tròn:</label>
-      <span>Làm tròn đến đồng</span>
-    </div>
-
-    <button onclick="tinhToan()">Tính toán</button>
-
-    <table id="ketQua">
-      <thead>
-        <tr>
-          <th>Kỳ</th>
-          <th>Gốc phải trả</th>
-          <th>Lãi phải trả</th>
-          <th>Tổng phải trả</th>
-          <th>Dư nợ còn lại</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <div class="marquee" aria-label="thong-bao">
+    <div class="marquee-content">💸 Chào mừng bạn đến với công cụ Tính Lãi Suất Vay của Team NGỌC TRÂN! 📞 Zalo: 0964 307 247 – Hỗ trợ nhanh, uy tín, linh hoạt! 🚀</div>
   </div>
 
+  <div class="container">
+    <h1>Tính Lãi Suất Vay Team Ngọc Trân</h1>
+    <p class="subtitle"><span class="pill">Bản nâng cao • Chuẩn vi-VN • Excel/PDF • Chọn quy ước lãi (Actual/365, Actual/360, 30/360) • Làm tròn</span></p>
+
+    <div class="grid" role="form" aria-label="loan-form">
+      <div>
+        <label>Ngày Giải Ngân
+          <input type="date" id="disbursalDate" />
+        </label>
+      </div>
+      <div>
+        <label>Ngày Kỳ Đóng Đầu Tiên
+          <input type="date" id="firstEmiDate" />
+        </label>
+      </div>
+      <div>
+        <label>Số Tiền Vay (VND)
+          <input type="text" id="loanAmount" inputmode="numeric" placeholder="VD: 100.000.000" />
+        </label>
+      </div>
+      <div>
+        <label>% Bảo Hiểm Khoản Vay (nếu có)
+          <input type="number" id="insurancePercent" value="7.7" step="0.1" min="0" />
+        </label>
+      </div>
+      <div>
+        <label>Lãi Suất (%/năm)
+          <input type="number" id="interestRate" value="52" step="0.01" min="0.01" />
+        </label>
+      </div>
+      <div>
+        <label>Số Kỳ Vay (tháng)
+          <input type="number" id="months" value="24" min="1" />
+        </label>
+      </div>
+
+      <!-- WRAPPER có id để ẩn (vẫn giữ input trong DOM) -->
+      <div id="phiThuHo">
+        <label>Phí Thu Hộ mỗi kỳ (VND)
+          <input type="text" id="collectionFee" value="12.000" />
+        </label>
+      </div>
+
+      <div id="quyUocTinhLai">
+        <label>Quy ước tính lãi
+          <select id="interestBasis">
+            <option value="30360">30/360 (mỗi tháng 30 ngày)</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="row" style="align-items:flex-end">
+        <label style="width:100%">
+          <input type="checkbox" id="proRateFirst" checked /> Tính lãi theo ngày cho kỳ đầu (từ ngày giải ngân → kỳ 1)
+        </label>
+      </div>
+
+      <div id="chinhSachLamTron">
+        <label>Chính sách làm tròn
+          <select id="roundPolicy">
+            <option value="none">Không làm tròn</option>
+            <option value="100">Làm tròn trăm (VND)</option>
+            <option value="1000" selected>Làm tròn nghìn (VND)</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="btnCalc">Tính Lịch Thanh Toán</button>
+      <button class="secondary" id="btnExcel">Xuất Excel</button>
+      <button class="ghost" id="btnPDF">Tải PDF</button>
+      <button class="ghost" id="btnCSV">Xuất CSV</button>
+      <button class="ghost" id="btnReset">Nhập Lại</button>
+    </div>
+
+    <div class="toolbar">
+      <label class="row" style="gap:6px"><input type="checkbox" id="remember" checked> Lưu thông tin nhập (LocalStorage)</label>
+      <button class="ghost" id="btnToday">Điền nhanh: giải ngân hôm nay, kỳ đầu +1 tháng</button>
+    </div>
+
+    <div id="alerts" style="margin-top:12px"></div>
+    <div id="summary" style="margin-top:12px"></div>
+    <div id="result" style="max-height:60vh; overflow:auto"></div>
+
+    <p class="note">* Đây là bảng tham khảo. Điều khoản thực tế có thể thay đổi theo hồ sơ và chính sách thời điểm.</p>
+
+    <footer>
+      © 2025 Võ Quốc Thiên – Giải Pháp Vay Tiêu Dùng Uy Tín & Linh Hoạt <br>
+      <a href="https://www.hitwebcounter.com" target="_blank" rel="noopener">
+        <img src="https://hitwebcounter.com/counter/counter.php?page=21221472&style=0002&nbdigits=6&type=page&initCount=0" alt="Đếm lượt truy cập" />
+      </a>
+      <div style="font-size:14px; color:#333; margin-top:5px">Lượt Truy Cập</div>
+    </footer>
+  </div>
+
+  <!-- Libs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <script>
-    function tinhToan() {
-      const soTienVay = parseFloat(document.getElementById("soTienVay").value);
-      const laiSuat = parseFloat(document.getElementById("laiSuat").value) / 100;
-      const soKyHan = parseInt(document.getElementById("soKyHan").value);
-      const phiThu = 0; // bỏ phí thu hộ luôn
-
-      if (isNaN(soTienVay) || isNaN(laiSuat) || isNaN(soKyHan)) {
-        alert("Vui lòng nhập đầy đủ thông tin!");
-        return;
-      }
-
-      const gocHangThang = soTienVay / soKyHan;
-      let duNoConLai = soTienVay;
-
-      const tbody = document.querySelector("#ketQua tbody");
-      tbody.innerHTML = "";
-
-      for (let i = 1; i <= soKyHan; i++) {
-        const laiHangThang = duNoConLai * (laiSuat / 12);
-        const tongTra = gocHangThang + laiHangThang + phiThu;
-        duNoConLai -= gocHangThang;
-
-        const row = `
-          <tr>
-            <td>${i}</td>
-            <td>${gocHangThang.toLocaleString()}</td>
-            <td>${laiHangThang.toLocaleString()}</td>
-            <td>${tongTra.toLocaleString()}</td>
-            <td>${duNoConLai > 0 ? duNoConLai.toLocaleString() : 0}</td>
-          </tr>
-        `;
-        tbody.innerHTML += row;
-      }
+    // ===== Helpers định dạng & ngày =====
+    function viNumber(n){ return Number(n || 0).toLocaleString('vi-VN'); }
+    function formatCurrencyStr(str){
+      if(!str) return '';
+      const digits = String(str).replace(/[^\d-]/g,'');
+      return digits ? viNumber(Number(digits)) : '';
     }
+    function parseNumber(str){ if(!str) return 0; return Number(String(str).replace(/[.,\s]/g,'').replace(/[^\d-]/g,'')) || 0; }
+
+    function daysBetween(d1, d2){
+      const one = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate());
+      const two = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate());
+      return Math.round((two - one) / (1000*60*60*24));
+    }
+    function daysInMonth(y,m){ return new Date(y, m+1, 0).getDate(); }
+    function addMonthsKeepDay(date, months){
+      const d = new Date(date);
+      const day = d.getDate();
+      d.setDate(1);
+      d.setMonth(d.getMonth() + months);
+      d.setDate(Math.min(day, daysInMonth(d.getFullYear(), d.getMonth())));
+      return d;
+    }
+
+    // US 30/360 day count
+    function days360(d1, d2){
+      const d1d = d1.getDate() === 31 ? 30 : d1.getDate();
+      const d2d = (d2.getDate() === 31 && d1d === 30) ? 30 : d2.getDate();
+      return (d2.getFullYear()-d1.getFullYear())*360 + (d2.getMonth()-d1.getMonth())*30 + (d2d - d1d);
+    }
+
+    function roundByPolicy(value, policy){
+      if(policy === '1000') return Math.round(value/1000)*1000;
+      if(policy === '100') return Math.round(value/100)*100;
+      return value; // none
+    }
+
+    // ===== Persist form =====
+    const FIELDS = ['disbursalDate','firstEmiDate','loanAmount','insurancePercent','interestRate','months','collectionFee','interestBasis','proRateFirst','roundPolicy'];
+    function saveForm(){
+      if(!document.getElementById('remember').checked) return;
+      const data = {};
+      for(const id of FIELDS){
+        const el = document.getElementById(id);
+        data[id] = el.type === 'checkbox' ? el.checked : el.value;
+      }
+      localStorage.setItem('loanFormV2', JSON.stringify(data));
+    }
+    function loadForm(){
+      const raw = localStorage.getItem('loanFormV2');
+      if(!raw) return;
+      try{
+        const data = JSON.parse(raw);
+        for(const id of FIELDS){
+          if(!(id in data)) continue;
+          const el = document.getElementById(id);
+          if(!el) continue;
+          if(el.type === 'checkbox') el.checked = !!data[id]; else el.value = data[id];
+        }
+      }catch{}
+    }
+
+    // ===== Validation =====
+    function validateInputs(){
+      const alerts = [];
+      const disbursalDateStr = document.getElementById('disbursalDate').value;
+      const firstEmiDateStr = document.getElementById('firstEmiDate').value;
+      const disbursalDate = disbursalDateStr ? new Date(disbursalDateStr) : null;
+      const firstEmiDate = firstEmiDateStr ? new Date(firstEmiDateStr) : null;
+      const loanAmount = parseNumber(document.getElementById('loanAmount').value);
+      const insurancePercent = Number(document.getElementById('insurancePercent').value);
+      const interestRate = Number(document.getElementById('interestRate').value);
+      const months = Number(document.getElementById('months').value);
+
+      if(!disbursalDate) alerts.push('Vui lòng chọn Ngày Giải Ngân.');
+      if(!firstEmiDate) alerts.push('Vui lòng chọn Ngày Kỳ Đóng Đầu Tiên.');
+      if(loanAmount <= 0) alerts.push('Số tiền vay phải > 0.');
+      if(months < 1) alerts.push('Số kỳ vay tối thiểu là 1.');
+      if(!(interestRate>0)) alerts.push('Lãi suất năm phải > 0.');
+      if(disbursalDate && firstEmiDate && firstEmiDate <= disbursalDate) alerts.push('Kỳ đóng đầu phải sau ngày giải ngân.');
+
+      return { valid: alerts.length === 0, alerts, values: {disbursalDate, firstEmiDate, loanAmount, insurancePercent, interestRate, months} };
+    }
+
+    function renderSummary(totalLoan, collectionFee, EMI /*, roundPolicy, totals removed */){
+      const details = [
+        `<div class="pill">Tổng vay + BH: <b>${viNumber(totalLoan)}</b> VND</div>`,
+        // EMI (chưa gồm phí) đã bị xóa theo yêu cầu
+        `<div class="pill">Tổng đóng/tháng (gồm phí): <b>${viNumber(Math.round(EMI + collectionFee))}</b> VND</div>`
+        // "Làm tròn" và totals (Tổng gốc, Tổng lãi, Tổng phí, Tổng thanh toán) bị xóa
+      ];
+      document.getElementById('summary').innerHTML = `<div class="row">${details.join('')}</div>`;
+    }
+
+    function calculateLoan(){
+      const { valid, alerts, values } = validateInputs();
+      const alertBox = document.getElementById('alerts');
+      if(!valid){
+        alertBox.innerHTML = '<div class="warn">' + alerts.map(a=>`• ${a}`).join('<br>') + '</div>';
+        document.getElementById('result').innerHTML = '';
+        document.getElementById('summary').innerHTML = '';
+        return;
+      } else { alertBox.innerHTML = ''; }
+
+      const {disbursalDate, firstEmiDate, loanAmount, insurancePercent, interestRate, months} = values;
+      const collectionFee = parseNumber(document.getElementById('collectionFee').value) || 0;
+      const proRateFirst = document.getElementById('proRateFirst').checked;
+      const interestBasis = document.getElementById('interestBasis').value; // A365, A360, 30360
+      const roundPolicy = document.getElementById('roundPolicy').value; // none, 100, 1000
+
+      // Định dạng trường tiền ngay khi người dùng nhập
+      document.getElementById('loanAmount').value = formatCurrencyStr(document.getElementById('loanAmount').value);
+      document.getElementById('collectionFee').value = formatCurrencyStr(document.getElementById('collectionFee').value);
+
+      const insurance = loanAmount * (insurancePercent/100);
+      const totalLoan = loanAmount + insurance;
+      const monthlyRate = (interestRate/100) / 12; // dùng cho kỳ chuẩn
+
+      // EMI (annuity) theo tháng
+      const pow = Math.pow(1 + monthlyRate, months);
+      const EMI = totalLoan * monthlyRate * pow / (pow - 1);
+
+      // Tóm tắt sơ bộ (EMI không hiển thị riêng, chỉ dùng để tính "Tổng đóng/tháng")
+      renderSummary(totalLoan, collectionFee, EMI);
+
+      let html = `<table id="repaymentTable"><thead><tr>
+        <th>Kỳ</th><th>Ngày Thanh Toán</th><th>Tiền Gốc</th><th>Tiền Lãi</th><th>Phí Thu Hộ</th><th>Dư Nợ Còn Lại</th>
+      </tr></thead><tbody>`;
+
+      let remaining = totalLoan;
+      let startDate = new Date(disbursalDate);
+
+      let sumP=0, sumI=0; // totals removed per yêu cầu
+
+      for(let i=1; i<=months; i++){
+        const payDate = addMonthsKeepDay(firstEmiDate, i-1);
+
+        // Tính lãi
+        let interest;
+        if(i === 1 && proRateFirst){
+          let frac;
+          if(interestBasis === 'A365'){
+            frac = daysBetween(startDate, payDate) / 365;
+          } else if(interestBasis === 'A360'){
+            frac = daysBetween(startDate, payDate) / 360;
+          } else { // 30/360
+            frac = days360(startDate, payDate) / 360;
+          }
+          interest = remaining * (interestRate/100) * Math.max(0, frac);
+        } else {
+          // Kỳ chuẩn (1 tháng)
+          interest = remaining * monthlyRate;
+        }
+
+        let principal = EMI - interest;
+        if(principal < 0){ principal = 0; }
+
+        // Làm tròn theo chính sách (áp dụng cho gốc & lãi hiển thị)
+        const rInterest = roundByPolicy(interest, roundPolicy);
+        let rPrincipal = roundByPolicy(principal, roundPolicy);
+
+        // Điều chỉnh kỳ cuối để hết dư nợ sau làm tròn
+        if(i === months){ rPrincipal = remaining; }
+
+        const nextRemaining = remaining - rPrincipal;
+
+        sumP += rPrincipal; sumI += rInterest;
+
+        html += `<tr>
+          <td>${i}</td>
+          <td>${payDate.toLocaleDateString('vi-VN')}</td>
+          <td>${viNumber(Math.round(rPrincipal))}</td>
+          <td>${viNumber(Math.round(rInterest))}</td>
+          <td>${viNumber(collectionFee)}</td>
+          <td>${viNumber(Math.max(0, Math.round(nextRemaining)))}</td>
+        </tr>`;
+
+        remaining = nextRemaining;
+        startDate = new Date(payDate);
+      }
+
+      html += `</tbody></table>`;
+
+      document.getElementById('result').innerHTML = html;
+
+      // renderSummary(totalLoan, collectionFee, EMI, roundPolicy, {principal:sumP, interest:sumI, fee:sumF, total:sumT});
+      // totals đã bị xóa theo yêu cầu
+
+      saveForm();
+    }
+
+    function resetForm(){
+      const defaults = {
+        insurancePercent:'7.7', interestRate:'52', months:'24', collectionFee:'12.000',
+        interestBasis:'A365', proRateFirst:true, roundPolicy:'1000'
+      };
+      for(const id of ['disbursalDate','firstEmiDate','loanAmount','insurancePercent','interestRate','months','collectionFee']){
+        const el = document.getElementById(id);
+        if(id in defaults) el.value = defaults[id]; else el.value = '';
+      }
+      document.getElementById('interestBasis').value = defaults.interestBasis;
+      document.getElementById('proRateFirst').checked = defaults.proRateFirst;
+      document.getElementById('roundPolicy').value = defaults.roundPolicy;
+      document.getElementById('alerts').innerHTML='';
+      document.getElementById('summary').innerHTML='';
+      document.getElementById('result').innerHTML='';
+      saveForm();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function exportExcel(){
+      const table = document.getElementById('repaymentTable');
+      if(!table){ alert('Vui lòng tính lịch thanh toán trước khi xuất Excel.'); return; }
+      const wb = XLSX.utils.table_to_book(table, { sheet: 'LichThanhToan' });
+      XLSX.writeFile(wb, 'Lich_Thanh_Toan.xlsx');
+    }
+
+    function exportCSV(){
+      const table = document.getElementById('repaymentTable');
+      if(!table){ alert('Vui lòng tính lịch thanh toán trước khi xuất CSV.'); return; }
+      const rows = [...table.querySelectorAll('tr')].map(tr => [...tr.children].map(td => '"'+td.innerText.replace(/"/g,'""')+'"').join(','));
+      const blob = new Blob([rows.join('\n')], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='Lich_Thanh_Toan.csv'; a.click(); URL.revokeObjectURL(url);
+    }
+
+    function downloadPDF(){
+      const table = document.getElementById('repaymentTable');
+      if(!table){ alert('Vui lòng tính lịch thanh toán trước khi tải PDF.'); return; }
+      const node = document.createElement('div');
+      node.style.padding = '12px';
+      node.innerHTML = `
+        <h2 style="text-align:center;margin:0 0 10px">Lịch Thanh Toán – ${new Date().toLocaleDateString('vi-VN')}</h2>
+        ${document.getElementById('summary').innerHTML}
+        ${table.outerHTML}
+        <p style="font-style:italic;margin-top:8px">* Bảng mang tính chất tham khảo.</p>`;
+      const opt = { filename: 'Lich_Thanh_Toan.pdf', margin:10, image:{type:'jpeg', quality:0.95}, html2pdf:{scale:2, useCORS:true}, jsPDF:{unit:'mm', format:'a4', orientation:'portrait'} };
+      html2pdf().from(node).set(opt).save();
+    }
+
+    function autofillToday(){
+      const today = new Date();
+      const dStr = today.toISOString().slice(0,10);
+      const first = addMonthsKeepDay(today, 1).toISOString().slice(0,10);
+      document.getElementById('disbursalDate').value = dStr;
+      document.getElementById('firstEmiDate').value = first;
+    }
+
+    // ===== Wire up =====
+    document.addEventListener('input', (e)=>{
+      if(e.target && (e.target.id==='loanAmount' || e.target.id==='collectionFee')){
+        e.target.value = formatCurrencyStr(e.target.value);
+      }
+      saveForm();
+    });
+
+    document.getElementById('btnCalc').addEventListener('click', calculateLoan);
+    document.getElementById('btnExcel').addEventListener('click', exportExcel);
+    document.getElementById('btnPDF').addEventListener('click', downloadPDF);
+    document.getElementById('btnCSV').addEventListener('click', exportCSV);
+    document.getElementById('btnReset').addEventListener('click', resetForm);
+    document.getElementById('btnToday').addEventListener('click', autofillToday);
+
+    loadForm();
   </script>
+
+  <!-- Icon Zalo nổi -->
+  <a class="zalo" href="https://zalo.me/0964307247" target="_blank" rel="noopener" style="position:fixed; bottom:20px; right:20px; z-index:999; text-decoration:none">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Icon_of_Zalo.svg/1024px-Icon_of_Zalo.svg.png" alt="Zalo" style="width:60px; height:60px; filter: drop-shadow(0 6px 12px rgba(2,6,23,.25)); border-radius:14px; background:#fff" />
+  </a>
 </body>
 </html>

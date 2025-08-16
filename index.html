@@ -254,15 +254,7 @@
       const details = [
         `<div class="pill">Tổng vay + BH: <b>${viNumber(totalLoan)}</b> VND</div>`,
         `<div class="pill">Phí thu hộ/kỳ: <b>${viNumber(collectionFee)}</b> VND</div>`,
-        `<div class="pill">EMI (chưa gồm phí): <b>${viNumber(Math.round(EMI))}</b> VND</div>`,
         `<div class="pill">Tổng đóng/tháng (gồm phí): <b>${viNumber(Math.round(EMI + collectionFee))}</b> VND</div>`,
-        `<div class="pill">Làm tròn: <b>${document.querySelector(`#roundPolicy option[value="${roundPolicy}"]`).textContent}</b></div>`
-      ];
-      if(totals){
-        details.push(`<div class="pill">Tổng gốc: <b>${viNumber(Math.round(totals.principal))}</b></div>`);
-        details.push(`<div class="pill">Tổng lãi: <b>${viNumber(Math.round(totals.interest))}</b></div>`);
-        details.push(`<div class="pill">Tổng phí: <b>${viNumber(Math.round(totals.fee))}</b></div>`);
-        details.push(`<div class="pill">Tổng thanh toán: <b>${viNumber(Math.round(totals.total))}</b></div>`);
       }
       document.getElementById('summary').innerHTML = `<div class="row">${details.join('')}</div>`;
     }

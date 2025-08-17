@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tính Lãi Suất Vay (Của Thiên) – Bản Nâng Cao</title>
+  <title>Tính Lãi Suất Vay (Team Ngọc Trân) – Bản Nâng Cao</title>
   <style>
     :root{
       --primary:#007bff; --bg:#f5faff; --card-grad:linear-gradient(135deg,#d0e6f7,#f5faff);
@@ -53,14 +53,37 @@
       h1{font-size:20px; padding:8px 12px}
     }
 
-    /* In/PDF: tránh tách bảng sang trang khác */
+    /* ====== FULL-BLEED cho bảng kết quả trên web ======
+       Làm #result và bảng bên trong trải full chiều ngang (100vw),
+       tách khỏi card .container nhưng vẫn nằm cùng trang. */
+    #result{
+      position:relative;
+      left:50%; right:50%;
+      margin-left:-50vw; margin-right:-50vw;
+      width:100vw; max-width:100vw;
+      background:transparent;
+      padding:0 0 8px 0;
+      /* Bỏ giới hạn chiều cao & thanh cuộn để bảng chạy tự nhiên */
+      overflow:visible;
+    }
+    #result table{
+      border-radius:0; /* bảng full-bleed không bo góc để “trải nền” */
+    }
+
+    /* In/PDF */
     @media print{
       .marquee, .actions, .note, footer, .toolbar, .zalo{display:none !important}
       body{background:#fff}
       .container{box-shadow:none; background:#fff}
+      /* Tránh tách bảng */
       table, thead, tbody, tr, td, th { page-break-inside: avoid; }
       thead { display: table-header-group; }
       tfoot { display: table-footer-group; }
+      /* Bảng luôn sang trang mới, đứng riêng biệt */
+      #repaymentTable{ page-break-before: always; }
+      /* Khi in, bỏ full-bleed để vừa trang A4 */
+      #result{ left:auto; right:auto; margin:0; width:auto; max-width:none; }
+      #result table{ border-radius:0 }
     }
 
     /* Ẩn 3 mục (giữ DOM để vẫn có giá trị nhưng không hiển thị) */
@@ -69,7 +92,7 @@
 </head>
 <body>
   <div class="marquee" aria-label="thong-bao">
-    <div class="marquee-content">💸 Chào mừng bạn đến với công cụ Tính Lãi Suất Vay của Mr Thiên! 📞 Liên hệ Zalo: 0964307247 để được hỗ trợ nhanh chóng và uy tín! 🚀</div>
+    <div class="marquee-content">💸 Chào mừng bạn đến với công cụ Tính Lãi Suất Vay của Team Mirae Asset NGỌC TRÂN! 📞 Liên hệ Zalo: 0964307247 để được hỗ trợ nhanh chóng và uy tín! 🚀</div>
   </div>
 
   <div class="container" id="main">
@@ -88,8 +111,7 @@
 
       <div>
         <label>Số Tiền Vay (VND)</label>
-        <!-- input text để format với dấu chấm -->
-        <input type="text" id="loanAmount" inputmode="numeric" placeholder="VD: 1.000.000" />
+        <input type="text" id="loanAmount" inputmode="numeric" placeholder="VD: 20.000.000" />
       </div>
 
       <div>
@@ -107,13 +129,11 @@
         <input type="number" id="months" value="24" min="1" />
       </div>
 
-      <!-- Ẩn: Phí Thu Hộ (vẫn giữ DOM để tính) -->
       <div id="phiThuHo">
         <label>Phí Thu Hộ mỗi kỳ (VND)</label>
         <input type="text" id="collectionFee" value="12.000" inputmode="numeric" />
       </div>
 
-      <!-- Ẩn: Quy ước tính lãi -->
       <div id="quyUocTinhLai">
         <label>Quy ước tính lãi</label>
         <select id="interestBasis">
@@ -127,7 +147,6 @@
         </label>
       </div>
 
-      <!-- Ẩn: Chính sách làm tròn (vẫn dùng trong JS) -->
       <div id="chinhSachLamTron">
         <label>Chính sách làm tròn</label>
         <select id="roundPolicy">
@@ -153,13 +172,14 @@
 
     <div id="alerts" style="margin-top:12px"></div>
     <div id="summary" style="margin-top:12px"></div>
-    <div id="result" style="max-height:62vh; overflow:auto;"></div>
+  </div>
 
+  <!-- PHẦN BẢNG FULL-WIDTH TRÊN NỀN WEB -->
+  <div id="result"></div>
+
+  <div class="container">
     <p class="note">* Bảng tính mang tính chất tham khảo. Điều khoản chính thức tùy theo hồ sơ và chính sách.</p>
-
-    <footer>
-      >© Copyright 2025 Võ Quốc Thiên. Giải Pháp Vay Tiêu Dùng Uy Tín & Linh Hoạt
-    </footer>
+    <footer>© Copyright 2025 Võ Quốc Thiên. Giải Pháp Vay Tiêu Dùng Uy Tín & Linh Hoạt</footer>
   </div>
 
   <!-- Libs -->
@@ -170,34 +190,27 @@
     // ===== Helpers =====
     function viNumber(n){ return Number(n || 0).toLocaleString('vi-VN'); }
 
-    // format tiền nhập (thêm dấu chấm) — giữ đơn giản, đủ dùng
     function formatLoanInput(el){
       const original = el.value;
-      // giữ lại dấu âm nếu có (không cần nhưng an toàn)
       const neg = original.startsWith('-') ? '-' : '';
       let digits = original.replace(/[^0-9]/g,'');
       if(digits === '') { el.value = ''; return; }
-      // tránh xóa số dẫn tới NaN
       try{
         el.value = neg + Number(digits).toLocaleString('vi-VN');
       }catch(e){
         el.value = neg + digits;
       }
     }
-
-    // format tiền tương tự cho collectionFee (ẩn input nhưng vẫn format)
     function formatFeeInput(el){
       let digits = el.value.replace(/[^0-9]/g,'');
       el.value = digits ? Number(digits).toLocaleString('vi-VN') : '';
     }
-
-    // parse số từ chuỗi có dấu chấm
-    function parseNumber(str){ 
+    function parseNumber(str){
       if(!str && str !== 0) return 0;
       return Number(String(str).replace(/[.,\s]/g,'').replace(/[^\d-]/g,'')) || 0;
     }
 
-    // ngày giúp: daysBetween, days360, addMonthsKeepDay
+    // Dates
     function daysBetween(d1, d2){
       const one = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate());
       const two = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate());
@@ -222,7 +235,7 @@
     function roundByPolicy(value, policy){
       if(policy === '1000') return Math.round(value/1000)*1000;
       if(policy === '100') return Math.round(value/100)*100;
-      return Math.round(value); // default: rounded to integer VND
+      return Math.round(value);
     }
 
     // ===== Persist form =====
@@ -273,7 +286,7 @@
       return { valid: alerts.length === 0, alerts, values: {disbursalDate, firstEmiDate, loanAmount, insurancePercent, interestRate, months} };
     }
 
-    // ===== Render summary (rút gọn, không hiển thị totals theo yêu cầu) =====
+    // ===== Summary =====
     function renderSummary(totalLoan, collectionFee, EMI){
       const details = [
         `<div class="pill">Tổng vay + BH: <b>${viNumber(totalLoan)}</b> VND</div>`,
@@ -301,7 +314,7 @@
       const interestBasis = document.getElementById('interestBasis').value || '30360';
       const roundPolicy = document.getElementById('roundPolicy') ? document.getElementById('roundPolicy').value : '1000';
 
-      // format fields back
+      // format back
       document.getElementById('loanAmount').value = Number(loanAmount).toLocaleString('vi-VN');
       document.getElementById('collectionFee').value = Number(collectionFee).toLocaleString('vi-VN');
 
@@ -309,14 +322,14 @@
       const totalLoan = loanAmount + insurance;
       const monthlyRate = (Number(interestRate)/100) / 12;
 
-      // EMI annuity (dùng totalLoan)
       const pow = Math.pow(1 + monthlyRate, months);
       const EMI = (pow - 1) === 0 ? totalLoan / months : totalLoan * monthlyRate * pow / (pow - 1);
 
       renderSummary(totalLoan, collectionFee, EMI);
 
-      // Build table header (Phí Thu Hộ column hidden visually but present in DOM)
-      let html = `<table id="repaymentTable"><thead><tr>
+      // Build table
+      let html = `<div class="container" style="background:transparent;box-shadow:none;padding:0;margin:0"></div>
+      <table id="repaymentTable"><thead><tr>
         <th>Kỳ</th><th>Ngày Thanh Toán</th><th>Tiền Gốc</th><th>Tiền Lãi</th><th style="display:none">Phí Thu Hộ</th><th>Tổng Thanh Toán</th><th>Dư Nợ Còn Lại</th>
       </tr></thead><tbody>`;
 
@@ -326,7 +339,7 @@
       for(let i=1; i<=months; i++){
         const payDate = addMonthsKeepDay(firstEmiDate, i-1);
 
-        // tính lãi
+        // interest
         let interest;
         if(i === 1 && proRateFirst){
           let frac;
@@ -345,11 +358,8 @@
         let principal = EMI - interest;
         if(principal < 0) principal = 0;
 
-        // round per policy (applied for display amounts)
         const rInterest = roundByPolicy(interest, roundPolicy);
         let rPrincipal = roundByPolicy(principal, roundPolicy);
-
-        // ensure last period clears remaining
         if(i === months) rPrincipal = remaining;
 
         const totalPay = rPrincipal + rInterest + collectionFee;
@@ -435,14 +445,13 @@
     // ===== init & events =====
     document.addEventListener('DOMContentLoaded', function(){
       loadForm();
-      // wire up inputs formatting
+
       const loanInp = document.getElementById('loanAmount');
       loanInp && loanInp.addEventListener('input', (e)=> formatLoanInput(e.target));
 
       const feeInp = document.getElementById('collectionFee');
       feeInp && feeInp.addEventListener('input', (e)=> formatFeeInput(e.target));
 
-      // buttons
       document.getElementById('btnCalc').addEventListener('click', calculateLoan);
       document.getElementById('btnExcel').addEventListener('click', exportExcel);
       document.getElementById('btnCSV').addEventListener('click', exportCSV);
@@ -450,12 +459,7 @@
       document.getElementById('btnReset').addEventListener('click', resetForm);
       document.getElementById('btnToday').addEventListener('click', autofillToday);
 
-      // persist on input change quickly
-      document.addEventListener('input', (e)=> {
-        if(!e.target) return;
-        // format loan/fee live already
-        saveForm();
-      });
+      document.addEventListener('input', (e)=> { if(!e.target) return; saveForm(); });
     });
   </script>
 

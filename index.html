@@ -420,7 +420,8 @@
     }
 
     // ===== Events =====
-    document.getElementById('loanAmount').addEventListener('blur',e=>formatLoanInput(e.target));
+    // CHỈ THAY ĐỔI DÒNG NÀY: từ 'blur' thành 'input' để gõ tới đâu có dấu . tới đó
+    document.getElementById('loanAmount').addEventListener('input', e=>formatLoanInput(e.target));
     document.getElementById('collectionFee').addEventListener('blur',e=>formatFeeInput(e.target));
 
     document.getElementById('btnCalc').addEventListener('click',calculateLoan);

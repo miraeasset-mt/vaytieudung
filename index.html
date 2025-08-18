@@ -53,9 +53,7 @@
       h1{font-size:20px; padding:8px 12px}
     }
 
-    /* ====== FULL-BLEED cho bảng kết quả trên web ======
-       Làm #result và bảng bên trong trải full chiều ngang (100vw),
-       tách khỏi card .container nhưng vẫn nằm cùng trang. */
+    /* ====== FULL-BLEED cho bảng kết quả ====== */
     #result{
       position:relative;
       left:50%; right:50%;
@@ -63,11 +61,10 @@
       width:100vw; max-width:100vw;
       background:transparent;
       padding:0 0 8px 0;
-      /* Bỏ giới hạn chiều cao & thanh cuộn để bảng chạy tự nhiên */
       overflow:visible;
     }
     #result table{
-      border-radius:0; /* bảng full-bleed không bo góc để “trải nền” */
+      border-radius:0;
     }
 
     /* In/PDF */
@@ -75,18 +72,15 @@
       .marquee, .actions, .note, footer, .toolbar, .zalo{display:none !important}
       body{background:#fff}
       .container{box-shadow:none; background:#fff}
-      /* Tránh tách bảng */
       table, thead, tbody, tr, td, th { page-break-inside: avoid; }
       thead { display: table-header-group; }
       tfoot { display: table-footer-group; }
-      /* Bảng luôn sang trang mới, đứng riêng biệt */
       #repaymentTable{ page-break-before: always; }
-      /* Khi in, bỏ full-bleed để vừa trang A4 */
       #result{ left:auto; right:auto; margin:0; width:auto; max-width:none; }
       #result table{ border-radius:0 }
     }
 
-    /* Ẩn 3 mục (giữ DOM để vẫn có giá trị nhưng không hiển thị) */
+    /* Ẩn 3 mục (giữ DOM) */
     #phiThuHo, #quyUocTinhLai, #chinhSachLamTron { display: none; }
   </style>
 </head>
@@ -174,7 +168,7 @@
     <div id="summary" style="margin-top:12px"></div>
   </div>
 
-  <!-- PHẦN BẢNG FULL-WIDTH TRÊN NỀN WEB -->
+  <!-- PHẦN BẢNG FULL-WIDTH -->
   <div id="result"></div>
 
   <div class="container">
@@ -287,9 +281,10 @@
     }
 
     // ===== Summary =====
-    function renderSummary(totalLoan, collectionFee, EMI){
+    function renderSummary(totalLoan, collectionFee, EMI, months){
       const details = [
         `<div class="pill">Tổng vay + BH: <b>${viNumber(totalLoan)}</b> VND</div>`,
+        `<div class="pill">Số tháng vay: <b>${months}</b> tháng</div>`,
         `<div class="pill">Tổng đóng/tháng (gồm phí): <b>${viNumber(Math.round(EMI + collectionFee))}</b> VND</div>`
       ];
       document.getElementById('summary').innerHTML = `<div class="row">${details.join('')}</div>`;
@@ -314,158 +309,128 @@
       const interestBasis = document.getElementById('interestBasis').value || '30360';
       const roundPolicy = document.getElementById('roundPolicy') ? document.getElementById('roundPolicy').value : '1000';
 
-      // format back
       document.getElementById('loanAmount').value = Number(loanAmount).toLocaleString('vi-VN');
-      document.getElementById('collectionFee').value = Number(collectionFee).toLocaleString('vi-VN');
+      document.getElementById('collectionFee').value = collectionFee ? Number(collectionFee).toLocaleString('vi-VN') : '';
 
-      const insurance = loanAmount * (Number(insurancePercent)/100);
-      const totalLoan = loanAmount + insurance;
-      const monthlyRate = (Number(interestRate)/100) / 12;
+      const insuranceFee = loanAmount * (insurancePercent/100);
+      const totalLoan = loanAmount + insuranceFee;
+      const monthlyRate = interestRate/100/12;
 
-      const pow = Math.pow(1 + monthlyRate, months);
-      const EMI = (pow - 1) === 0 ? totalLoan / months : totalLoan * monthlyRate * pow / (pow - 1);
+      let EMI = totalLoan * monthlyRate * Math.pow(1+monthlyRate, months) / (Math.pow(1+monthlyRate, months) - 1);
+      EMI = roundByPolicy(EMI, roundPolicy);
 
-      renderSummary(totalLoan, collectionFee, EMI);
+      let balance = totalLoan;
+      let rows = [];
+      let payDate = new Date(firstEmiDate);
 
-      // Build table
-      let html = `<div class="container" style="background:transparent;box-shadow:none;padding:0;margin:0"></div>
-      <table id="repaymentTable"><thead><tr>
-        <th>Kỳ</th><th>Ngày Thanh Toán</th><th>Tiền Gốc</th><th>Tiền Lãi</th><th style="display:none">Phí Thu Hộ</th><th>Tổng Thanh Toán</th><th>Dư Nợ Còn Lại</th>
-      </tr></thead><tbody>`;
-
-      let remaining = totalLoan;
-      let startDate = new Date(disbursalDate);
-
-      for(let i=1; i<=months; i++){
-        const payDate = addMonthsKeepDay(firstEmiDate, i-1);
-
-        // interest
+      for(let i=1;i<=months;i++){
         let interest;
-        if(i === 1 && proRateFirst){
-          let frac;
-          if(interestBasis === 'A365'){
-            frac = daysBetween(startDate, payDate) / 365;
-          } else if(interestBasis === 'A360'){
-            frac = daysBetween(startDate, payDate) / 360;
-          } else { // 30/360
-            frac = days360(startDate, payDate) / 360;
-          }
-          interest = remaining * (Number(interestRate)/100) * Math.max(0, frac);
+        if(i===1 && proRateFirst){
+          const diffDays = interestBasis==='30360' ? days360(disbursalDate,payDate) : daysBetween(disbursalDate,payDate);
+          interest = balance * (interestRate/100) * (diffDays/360);
         } else {
-          interest = remaining * monthlyRate;
+          interest = balance * monthlyRate;
         }
+        interest = roundByPolicy(interest, roundPolicy);
 
         let principal = EMI - interest;
-        if(principal < 0) principal = 0;
+        if(i === months) principal = balance;
+        balance = balance - principal;
+        if(balance<0) balance=0;
 
-        const rInterest = roundByPolicy(interest, roundPolicy);
-        let rPrincipal = roundByPolicy(principal, roundPolicy);
-        if(i === months) rPrincipal = remaining;
+        rows.push({
+          ky:i,
+          ngay: payDate.toLocaleDateString('vi-VN'),
+          goc: principal,
+          lai: interest,
+          gocLai: principal+interest,
+          phi: collectionFee,
+          tong: principal+interest+collectionFee,
+          duNo: balance
+        });
 
-        const totalPay = rPrincipal + rInterest + collectionFee;
-        const nextRemaining = remaining - rPrincipal;
-
-        html += `<tr>
-          <td>${i}</td>
-          <td>${payDate.toLocaleDateString('vi-VN')}</td>
-          <td>${viNumber(Math.round(rPrincipal))}</td>
-          <td>${viNumber(Math.round(rInterest))}</td>
-          <td style="display:none">${viNumber(collectionFee)}</td>
-          <td>${viNumber(Math.round(totalPay))}</td>
-          <td>${viNumber(Math.max(0, Math.round(nextRemaining)))}</td>
-        </tr>`;
-
-        remaining = nextRemaining;
-        startDate = new Date(payDate);
+        payDate = addMonthsKeepDay(payDate,1);
       }
 
-      html += `</tbody></table>`;
-      document.getElementById('result').innerHTML = html;
+      renderSummary(totalLoan, collectionFee, EMI, months);
 
+      let html = '<table id="repaymentTable"><thead><tr>' +
+        '<th>Kỳ</th><th>Ngày</th><th>Gốc</th><th>Lãi</th><th>Gốc+Lãi</th><th>Phí TH</th><th>Tổng kỳ</th><th>Dư nợ</th></tr></thead><tbody>';
+
+      let sumGoc=0,sumLai=0,sumGL=0,sumPhi=0,sumTong=0;
+      for(const r of rows){
+        sumGoc+=r.goc; sumLai+=r.lai; sumGL+=r.gocLai; sumPhi+=r.phi; sumTong+=r.tong;
+        html += `<tr><td>${r.ky}</td><td>${r.ngay}</td><td>${viNumber(r.goc)}</td><td>${viNumber(r.lai)}</td><td>${viNumber(r.gocLai)}</td><td>${viNumber(r.phi)}</td><td>${viNumber(r.tong)}</td><td>${viNumber(r.duNo)}</td></tr>`;
+      }
+      html += `</tbody><tfoot><tr><td colspan="2">Tổng</td><td>${viNumber(sumGoc)}</td><td>${viNumber(sumLai)}</td><td>${viNumber(sumGL)}</td><td>${viNumber(sumPhi)}</td><td>${viNumber(sumTong)}</td><td></td></tr></tfoot></table>`;
+
+      document.getElementById('result').innerHTML = html;
       saveForm();
     }
 
-    // ===== exports / utils =====
+    // ===== Exports =====
     function exportExcel(){
-      const table = document.getElementById('repaymentTable');
-      if(!table){ alert('Vui lòng tính lịch thanh toán trước khi xuất Excel.'); return; }
-      const wb = XLSX.utils.table_to_book(table, { sheet: 'LichThanhToan' });
-      XLSX.writeFile(wb, 'Lich_Thanh_Toan.xlsx');
+      const tbl = document.getElementById('repaymentTable');
+      if(!tbl){ alert('Vui lòng tính trước khi xuất Excel.'); return; }
+      const wb = XLSX.utils.table_to_book(tbl,{sheet:"Lịch trả nợ"});
+      XLSX.writeFile(wb,"Lich_tra_no.xlsx");
     }
-
     function exportCSV(){
-      const table = document.getElementById('repaymentTable');
-      if(!table){ alert('Vui lòng tính lịch thanh toán trước khi xuất CSV.'); return; }
-      const rows = [...table.querySelectorAll('tr')].map(tr => [...tr.children].map(td => '"'+td.innerText.replace(/"/g,'""')+'"').join(','));
-      const blob = new Blob([rows.join('\n')], {type:'text/csv;charset=utf-8;'});
+      const tbl = document.getElementById('repaymentTable');
+      if(!tbl){ alert('Vui lòng tính trước khi xuất CSV.'); return; }
+      const ws = XLSX.utils.table_to_sheet(tbl);
+      const csv = XLSX.utils.sheet_to_csv(ws);
+      const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href=url; a.download='Lich_Thanh_Toan.csv'; a.click(); URL.revokeObjectURL(url);
+      const a = document.createElement('a');
+      a.href=url; a.download="Lich_tra_no.csv"; a.click();
+      URL.revokeObjectURL(url);
     }
-
-    function downloadPDF(){
-      const table = document.getElementById('repaymentTable');
-      if(!table){ alert('Vui lòng tính lịch thanh toán trước khi tải PDF.'); return; }
-      const node = document.createElement('div');
-      node.style.padding = '12px';
-      node.innerHTML = `
-        <h2 style="text-align:center;margin:0 0 10px">Lịch Thanh Toán – ${new Date().toLocaleDateString('vi-VN')}</h2>
-        ${document.getElementById('summary').innerHTML}
-        ${table.outerHTML}
-        <p style="font-style:italic;margin-top:8px">* Bảng mang tính chất tham khảo.</p>`;
-      const opt = { filename: 'Lich_Thanh_Toan.pdf', margin:10, image:{type:'jpeg', quality:0.95}, html2pdf:{scale:2, useCORS:true}, jsPDF:{unit:'mm', format:'a4', orientation:'portrait'} };
-      html2pdf().from(node).set(opt).save();
+    function exportPDF(){
+      const tbl = document.getElementById('repaymentTable');
+      if(!tbl){ alert('Vui lòng tính trước khi tải PDF.'); return; }
+      const opt = {
+        margin:0.5,
+        filename:'Lich_tra_no.pdf',
+        image:{type:'jpeg',quality:0.98},
+        html2canvas:{scale:2},
+        jsPDF:{unit:'in',format:'a4',orientation:'portrait'}
+      };
+      html2pdf().from(tbl).set(opt).save();
     }
 
     function resetForm(){
-      const defaults = {
-        insurancePercent:'7.7', interestRate:'52', months:'24', collectionFee:'12.000',
-        interestBasis:'30360', proRateFirst:true, roundPolicy:'1000'
-      };
-      for(const id of ['disbursalDate','firstEmiDate','loanAmount','insurancePercent','interestRate','months','collectionFee']){
+      for(const id of FIELDS){
         const el = document.getElementById(id);
         if(!el) continue;
-        if(id in defaults) el.value = defaults[id]; else el.value = '';
+        if(el.type==='checkbox') el.checked=false; else el.value='';
       }
-      const ib = document.getElementById('interestBasis'); if(ib) ib.value = defaults.interestBasis;
-      const pr = document.getElementById('proRateFirst'); if(pr) pr.checked = defaults.proRateFirst;
-      const rp = document.getElementById('roundPolicy'); if(rp) rp.value = defaults.roundPolicy;
       document.getElementById('alerts').innerHTML='';
       document.getElementById('summary').innerHTML='';
       document.getElementById('result').innerHTML='';
-      saveForm();
-      window.scrollTo({top:0, behavior:'smooth'});
+      localStorage.removeItem('loanFormV2');
     }
 
-    function autofillToday(){
+    function fillToday(){
       const today = new Date();
-      document.getElementById('disbursalDate').value = today.toISOString().slice(0,10);
-      document.getElementById('firstEmiDate').value = addMonthsKeepDay(today, 1).toISOString().slice(0,10);
+      document.getElementById('disbursalDate').valueAsDate = today;
+      const first = new Date(today);
+      first.setMonth(first.getMonth()+1);
+      document.getElementById('firstEmiDate').valueAsDate = first;
     }
 
-    // ===== init & events =====
-    document.addEventListener('DOMContentLoaded', function(){
-      loadForm();
+    // ===== Events =====
+    document.getElementById('loanAmount').addEventListener('blur',e=>formatLoanInput(e.target));
+    document.getElementById('collectionFee').addEventListener('blur',e=>formatFeeInput(e.target));
 
-      const loanInp = document.getElementById('loanAmount');
-      loanInp && loanInp.addEventListener('input', (e)=> formatLoanInput(e.target));
+    document.getElementById('btnCalc').addEventListener('click',calculateLoan);
+    document.getElementById('btnExcel').addEventListener('click',exportExcel);
+    document.getElementById('btnPDF').addEventListener('click',exportPDF);
+    document.getElementById('btnCSV').addEventListener('click',exportCSV);
+    document.getElementById('btnReset').addEventListener('click',resetForm);
+    document.getElementById('btnToday').addEventListener('click',fillToday);
 
-      const feeInp = document.getElementById('collectionFee');
-      feeInp && feeInp.addEventListener('input', (e)=> formatFeeInput(e.target));
-
-      document.getElementById('btnCalc').addEventListener('click', calculateLoan);
-      document.getElementById('btnExcel').addEventListener('click', exportExcel);
-      document.getElementById('btnCSV').addEventListener('click', exportCSV);
-      document.getElementById('btnPDF').addEventListener('click', downloadPDF);
-      document.getElementById('btnReset').addEventListener('click', resetForm);
-      document.getElementById('btnToday').addEventListener('click', autofillToday);
-
-      document.addEventListener('input', (e)=> { if(!e.target) return; saveForm(); });
-    });
+    loadForm();
   </script>
-
-  <!-- Icon Zalo nổi -->
-  <a class="zalo" href="https://zalo.me/0964307247" target="_blank" rel="noopener" style="position:fixed; bottom:18px; right:18px; z-index:999; text-decoration:none">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Icon_of_Zalo.svg/1024px-Icon_of_Zalo.svg.png" alt="Zalo" style="width:56px; height:56px; filter: drop-shadow(0 6px 12px rgba(2,6,23,.18)); border-radius:12px; background:#fff" />
-  </a>
 </body>
 </html>

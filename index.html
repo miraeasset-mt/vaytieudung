@@ -53,18 +53,17 @@
       h1{font-size:20px; padding:8px 12px}
     }
 
-    /* ====== FULL-BLEED cho bảng kết quả ====== */
+    /* ====== KẾT QUẢ: TRONG KHUNG, CÓ CUỘN NGANG KHI CẦN ====== */
     #result{
-      position:relative;
-      left:50%; right:50%;
-      margin-left:-50vw; margin-right:-50vw;
-      width:100vw; max-width:100vw;
+      max-width:1100px;
+      margin:0 auto;
       background:transparent;
       padding:0 0 8px 0;
-      overflow:visible;
+      overflow-x:auto; /* Cho cuộn ngang khi bảng rộng */
     }
     #result table{
       border-radius:0;
+      min-width:900px; /* Tránh bóp bảng quá hẹp, đủ để cuộn nếu nhỏ hơn khung */
     }
 
     /* In/PDF */
@@ -72,12 +71,11 @@
       .marquee, .actions, .note, footer, .toolbar, .zalo{display:none !important}
       body{background:#fff}
       .container{box-shadow:none; background:#fff}
-      table, thead, tbody, tr, td, th { page-break-inside: avoid; }
+      /* CHO PHÉP NGẮT TRANG BÊN TRONG BẢNG (bỏ rule chặn ngắt) */
       thead { display: table-header-group; }
       tfoot { display: table-footer-group; }
-      #repaymentTable{ page-break-before: always; }
-      #result{ left:auto; right:auto; margin:0; width:auto; max-width:none; }
-      #result table{ border-radius:0 }
+      #result{ margin:0; max-width:none; }
+      #result table{ border-radius:0; }
     }
 
     /* Ẩn 3 mục (giữ DOM) */
@@ -168,7 +166,7 @@
     <div id="summary" style="margin-top:12px"></div>
   </div>
 
-  <!-- PHẦN BẢNG FULL-WIDTH -->
+  <!-- PHẦN BẢNG (trong khung, có cuộn ngang) -->
   <div id="result"></div>
 
   <div class="container">
@@ -394,7 +392,8 @@
         filename:'Lich_tra_no.pdf',
         image:{type:'jpeg',quality:0.98},
         html2canvas:{scale:2},
-        jsPDF:{unit:'in',format:'a4',orientation:'portrait'}
+        jsPDF:{unit:'in',format:'a4',orientation:'portrait'},
+        pagebreak:{ mode:['css','legacy'] } // Cho phép ngắt trang
       };
       html2pdf().from(tbl).set(opt).save();
     }
@@ -420,7 +419,7 @@
     }
 
     // ===== Events =====
-    // CHỈ THAY ĐỔI DÒNG NÀY: từ 'blur' thành 'input' để gõ tới đâu có dấu . tới đó
+    // Gõ tới đâu có dấu chấm tới đó cho Số Tiền Vay
     document.getElementById('loanAmount').addEventListener('input', e=>formatLoanInput(e.target));
     document.getElementById('collectionFee').addEventListener('blur',e=>formatFeeInput(e.target));
 

@@ -57,11 +57,20 @@
       margin:0 auto;
       background:transparent;
       padding:0 0 8px 0;
-      overflow-x:auto; /* Cho cuộn ngang khi bảng rộng */
+      overflow-x:auto;              /* Cho cuộn ngang khi bảng rộng */
+      -webkit-overflow-scrolling:touch; /* Cuộn mượt trên iOS */
+      overscroll-behavior-x:contain;    /* Tránh kéo cả trang */
     }
     #result table{
       border-radius:0;
       min-width:900px; /* Tránh bóp bảng quá hẹp, đủ để cuộn nếu nhỏ hơn khung */
+    }
+
+    /* Tối ưu hiển thị bảng trên màn nhỏ */
+    @media (max-width:600px){
+      .container{padding:14px}
+      table th, table td{padding:6px; font-size:12px}
+      #result table{min-width:640px} /* Thu gọn hơn để đỡ quá rộng trên điện thoại */
     }
 
     /* In/PDF */

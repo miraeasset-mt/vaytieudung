@@ -39,8 +39,6 @@
     table th, table td{border:1px solid #e2e8f0; padding:10px; text-align:center; font-size:14px}
     table th{background:#f1f5f9; position:sticky; top:0; z-index:1}
 
-    tfoot td{font-weight:700; background:#fafafa}
-
     footer{text-align:center; margin-top:28px; font-size:13px; color:#555}
 
     .pill{display:inline-block; border:1px dashed #93c5fd; padding:6px 10px; border-radius:999px; background:#eff6ff; color:#0c4a6e; font-size:13px}
@@ -71,9 +69,7 @@
       .marquee, .actions, .note, footer, .toolbar, .zalo{display:none !important}
       body{background:#fff}
       .container{box-shadow:none; background:#fff}
-      /* CHO PHÉP NGẮT TRANG BÊN TRONG BẢNG (bỏ rule chặn ngắt) */
       thead { display: table-header-group; }
-      tfoot { display: table-footer-group; }
       #result{ margin:0; max-width:none; }
       #result table{ border-radius:0; }
     }
@@ -312,125 +308,159 @@
 
       const insuranceFee = loanAmount * (insurancePercent/100);
       const totalLoan = loanAmount + insuranceFee;
-      const monthlyRate = interestRate/100/12;
-
-      let EMI = totalLoan * monthlyRate * Math.pow(1+monthlyRate, months) / (Math.pow(1+monthlyRate, months) - 1);
-      EMI = roundByPolicy(EMI, roundPolicy);
-
-      let balance = totalLoan;
-      let rows = [];
-      let payDate = new Date(firstEmiDate);
-
-      for(let i=1;i<=months;i++){
-        let interest;
-        if(i===1 && proRateFirst){
-          const diffDays = interestBasis==='30360' ? days360(disbursalDate,payDate) : daysBetween(disbursalDate,payDate);
-          interest = balance * (interestRate/100) * (diffDays/360);
-        } else {
-          interest = balance * monthlyRate;
-        }
-        interest = roundByPolicy(interest, roundPolicy);
-
-        let principal = EMI - interest;
-        if(i === months) principal = balance;
-        balance = balance - principal;
-        if(balance<0) balance=0;
-
-        rows.push({
-          ky:i,
-          ngay: payDate.toLocaleDateString('vi-VN'),
-          goc: principal,
-          lai: interest,
-          gocLai: principal+interest,
-          phi: collectionFee,
-          tong: principal+interest+collectionFee,
-          duNo: balance
-        });
-
-        payDate = addMonthsKeepDay(payDate,1);
-      }
+      const r = interestRate/100/12;
+      const EMI = totalLoan * r * Math.pow(1+r,months) / (Math.pow(1+r,months)-1);
 
       renderSummary(totalLoan, collectionFee, EMI, months);
 
-      let html = '<table id="repaymentTable"><thead><tr>' +
-        '<th>Kỳ</th><th>Ngày</th><th>Gốc</th><th>Lãi</th><th>Gốc+Lãi</th><th>Phí TH</th><th>Tổng kỳ</th><th>Dư nợ</th></tr></thead><tbody>';
+      let schedule = [];
+      let outstanding = totalLoan;
+      let payDate = new Date(firstEmiDate);
 
-      let sumGoc=0,sumLai=0,sumGL=0,sumPhi=0,sumTong=0;
-      for(const r of rows){
-        sumGoc+=r.goc; sumLai+=r.lai; sumGL+=r.gocLai; sumPhi+=r.phi; sumTong+=r.tong;
-        html += `<tr><td>${r.ky}</td><td>${r.ngay}</td><td>${viNumber(r.goc)}</td><td>${viNumber(r.lai)}</td><td>${viNumber(r.gocLai)}</td><td>${viNumber(r.phi)}</td><td>${viNumber(r.tong)}</td><td>${viNumber(r.duNo)}</td></tr>`;
+      if(proRateFirst){
+        const days = interestBasis==='30360' ? days360(disbursalDate, payDate) : daysBetween(disbursalDate, payDate);
+        const dailyRate = interestRate/100/360;
+        const interest = outstanding * dailyRate * days;
+        const principal = 0;
+        const total = interest + principal + collectionFee;
+        schedule.push({
+          ky: 1,
+          ngay: payDate.toLocaleDateString('vi-VN'),
+          goc: principal,
+          lai: interest,
+          tong: total,
+          phi: collectionFee,
+          conlai: outstanding
+        });
+        payDate = addMonthsKeepDay(payDate,1);
+        for(let i=2;i<=months;i++){
+          const interest = outstanding*r;
+          const principal = EMI - interest;
+          outstanding -= principal;
+          const total = EMI + collectionFee;
+          schedule.push({
+            ky: i,
+            ngay: payDate.toLocaleDateString('vi-VN'),
+            goc: principal,
+            lai: interest,
+            tong: total,
+            phi: collectionFee,
+            conlai: Math.max(outstanding,0)
+          });
+          payDate = addMonthsKeepDay(payDate,1);
+        }
+      } else {
+        for(let i=1;i<=months;i++){
+          const interest = outstanding*r;
+          const principal = EMI - interest;
+          outstanding -= principal;
+          const total = EMI + collectionFee;
+          schedule.push({
+            ky: i,
+            ngay: payDate.toLocaleDateString('vi-VN'),
+            goc: principal,
+            lai: interest,
+            tong: total,
+            phi: collectionFee,
+            conlai: Math.max(outstanding,0)
+          });
+          payDate = addMonthsKeepDay(payDate,1);
+        }
       }
-      html += `</tbody><tfoot><tr><td colspan="2">Tổng</td><td>${viNumber(sumGoc)}</td><td>${viNumber(sumLai)}</td><td>${viNumber(sumGL)}</td><td>${viNumber(sumPhi)}</td><td>${viNumber(sumTong)}</td><td></td></tr></tfoot></table>`;
 
+      for(let s of schedule){
+        s.goc = roundByPolicy(s.goc, roundPolicy);
+        s.lai = roundByPolicy(s.lai, roundPolicy);
+        s.tong = roundByPolicy(s.tong, roundPolicy);
+        s.phi = roundByPolicy(s.phi, roundPolicy);
+        s.conlai = roundByPolicy(s.conlai, roundPolicy);
+      }
+
+      let html = '<table><thead><tr>'+
+        '<th>Kỳ</th><th>Ngày đóng</th><th>Gốc</th><th>Lãi</th><th>Phí</th><th>Tổng phải trả</th><th>Dư nợ còn lại</th>'+
+        '</tr></thead><tbody>';
+      for(let s of schedule){
+        html += `<tr>
+          <td>${s.ky}</td>
+          <td>${s.ngay}</td>
+          <td>${viNumber(s.goc)}</td>
+          <td>${viNumber(s.lai)}</td>
+          <td>${viNumber(s.phi)}</td>
+          <td>${viNumber(s.tong)}</td>
+          <td>${viNumber(s.conlai)}</td>
+        </tr>`;
+      }
+      html += '</tbody></table>';
       document.getElementById('result').innerHTML = html;
       saveForm();
     }
 
-    // ===== Exports =====
+    // ===== Export =====
     function exportExcel(){
-      const tbl = document.getElementById('repaymentTable');
-      if(!tbl){ alert('Vui lòng tính trước khi xuất Excel.'); return; }
-      const wb = XLSX.utils.table_to_book(tbl,{sheet:"Lịch trả nợ"});
-      XLSX.writeFile(wb,"Lich_tra_no.xlsx");
+      const table = document.querySelector('#result table');
+      if(!table) return;
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.table_to_sheet(table);
+      XLSX.utils.book_append_sheet(wb, ws, "LichThanhToan");
+      XLSX.writeFile(wb, "LichThanhToan.xlsx");
     }
     function exportCSV(){
-      const tbl = document.getElementById('repaymentTable');
-      if(!tbl){ alert('Vui lòng tính trước khi xuất CSV.'); return; }
-      const ws = XLSX.utils.table_to_sheet(tbl);
-      const csv = XLSX.utils.sheet_to_csv(ws);
-      const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href=url; a.download="Lich_tra_no.csv"; a.click();
-      URL.revokeObjectURL(url);
+      const table = document.querySelector('#result table');
+      if(!table) return;
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.table_to_sheet(table);
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+      XLSX.writeFile(wb, "LichThanhToan.csv");
     }
     function exportPDF(){
-      const tbl = document.getElementById('repaymentTable');
-      if(!tbl){ alert('Vui lòng tính trước khi tải PDF.'); return; }
+      const result = document.getElementById('result');
+      if(!result.querySelector('table')) return;
       const opt = {
-        margin:0.5,
-        filename:'Lich_tra_no.pdf',
-        image:{type:'jpeg',quality:0.98},
-        html2canvas:{scale:2},
-        jsPDF:{unit:'in',format:'a4',orientation:'portrait'},
-        pagebreak:{ mode:['css','legacy'] } // Cho phép ngắt trang
+        margin: 10,
+        filename: 'LichThanhToan.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
       };
-      html2pdf().from(tbl).set(opt).save();
+      html2pdf().set(opt).from(result).save();
     }
 
+    // ===== Reset & today =====
     function resetForm(){
       for(const id of FIELDS){
         const el = document.getElementById(id);
         if(!el) continue;
-        if(el.type==='checkbox') el.checked=false; else el.value='';
+        if(el.type==='checkbox') el.checked = (id==='proRateFirst');
+        else if(id==='insurancePercent') el.value=7.7;
+        else if(id==='interestRate') el.value=52;
+        else if(id==='months') el.value=24;
+        else if(id==='collectionFee') el.value='12.000';
+        else el.value='';
       }
-      document.getElementById('alerts').innerHTML='';
-      document.getElementById('summary').innerHTML='';
-      document.getElementById('result').innerHTML='';
       localStorage.removeItem('loanFormV2');
+      document.getElementById('result').innerHTML = '';
+      document.getElementById('summary').innerHTML = '';
+      document.getElementById('alerts').innerHTML = '';
     }
-
     function fillToday(){
       const today = new Date();
-      document.getElementById('disbursalDate').valueAsDate = today;
-      const first = new Date(today);
-      first.setMonth(first.getMonth()+1);
-      document.getElementById('firstEmiDate').valueAsDate = first;
+      document.getElementById('disbursalDate').value = today.toISOString().split('T')[0];
+      const next = addMonthsKeepDay(today,1);
+      document.getElementById('firstEmiDate').value = next.toISOString().split('T')[0];
     }
 
     // ===== Events =====
-    // Gõ tới đâu có dấu chấm tới đó cho Số Tiền Vay
-    document.getElementById('loanAmount').addEventListener('input', e=>formatLoanInput(e.target));
-    document.getElementById('collectionFee').addEventListener('blur',e=>formatFeeInput(e.target));
-
-    document.getElementById('btnCalc').addEventListener('click',calculateLoan);
-    document.getElementById('btnExcel').addEventListener('click',exportExcel);
-    document.getElementById('btnPDF').addEventListener('click',exportPDF);
-    document.getElementById('btnCSV').addEventListener('click',exportCSV);
-    document.getElementById('btnReset').addEventListener('click',resetForm);
-    document.getElementById('btnToday').addEventListener('click',fillToday);
-
-    loadForm();
+    window.onload = function(){
+      loadForm();
+      document.getElementById('loanAmount').addEventListener('input', e=>formatLoanInput(e.target));
+      document.getElementById('collectionFee').addEventListener('input', e=>formatFeeInput(e.target));
+      document.getElementById('btnCalc').onclick = calculateLoan;
+      document.getElementById('btnExcel').onclick = exportExcel;
+      document.getElementById('btnCSV').onclick = exportCSV;
+      document.getElementById('btnPDF').onclick = exportPDF;
+      document.getElementById('btnReset').onclick = resetForm;
+      document.getElementById('btnToday').onclick = fillToday;
+    };
   </script>
 </body>
 </html>

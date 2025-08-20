@@ -57,20 +57,20 @@
       margin:0 auto;
       background:transparent;
       padding:0 0 8px 0;
-      overflow-x:auto;              /* Cho cuộn ngang khi bảng rộng */
-      -webkit-overflow-scrolling:touch; /* Cuộn mượt trên iOS */
-      overscroll-behavior-x:contain;    /* Tránh kéo cả trang */
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior-x:contain;
     }
     #result table{
       border-radius:0;
-      min-width:900px; /* Tránh bóp bảng quá hẹp, đủ để cuộn nếu nhỏ hơn khung */
+      min-width:900px;
     }
 
     /* Tối ưu hiển thị bảng trên màn nhỏ */
     @media (max-width:600px){
       .container{padding:14px}
       table th, table td{padding:6px; font-size:12px}
-      #result table{min-width:640px} /* Thu gọn hơn để đỡ quá rộng trên điện thoại */
+      #result table{min-width:640px}
     }
 
     /* In/PDF */
@@ -85,6 +85,30 @@
 
     /* Ẩn 3 mục (giữ DOM) */
     #phiThuHo, #quyUocTinhLai, #chinhSachLamTron { display: none; }
+
+    /* ===== Icon Zalo nổi góc phải ===== */
+    .zalo-icon {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      z-index: 9999;
+      transition: transform 0.2s;
+    }
+    .zalo-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background-color: #0068ff;
+      border-radius: 50%;
+    }
+    .zalo-icon:hover {
+      transform: scale(1.1);
+    }
   </style>
 </head>
 <body>
@@ -178,6 +202,11 @@
     <p class="note">* Bảng tính mang tính chất tham khảo. Điều khoản chính thức tùy theo hồ sơ và chính sách.</p>
     <footer>© Copyright 2025 Võ Quốc Thiên. Giải Pháp Vay Tiêu Dùng Uy Tín & Linh Hoạt</footer>
   </div>
+
+  <!-- Icon Zalo nổi góc phải -->
+  <a href="https://zalo.me/0964307247" target="_blank" class="zalo-icon" aria-label="Liên hệ Zalo">
+    <img src="https://upload.wikimedia.org/wikipedia/vi/9/99/Zalo_logo.png" alt="Zalo" />
+  </a>
 
   <!-- Libs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -295,181 +324,67 @@
 
     // ===== Core calculation & rendering =====
     function calculateLoan(){
-      const { valid, alerts, values } = validateInputs();
-      const alertBox = document.getElementById('alerts');
+      const {valid, alerts, values} = validateInputs();
+      const alertsEl = document.getElementById('alerts');
       if(!valid){
-        alertBox.innerHTML = '<div class="warn">' + alerts.map(a=>`• ${a}`).join('<br>') + '</div>';
-        document.getElementById('result').innerHTML = '';
-        document.getElementById('summary').innerHTML = '';
+        alertsEl.innerHTML = alerts.map(a=>`<div class="warn">${a}</div>`).join('');
         return;
-      } else {
-        alertBox.innerHTML = '';
-      }
+      }else alertsEl.innerHTML='';
 
       const {disbursalDate, firstEmiDate, loanAmount, insurancePercent, interestRate, months} = values;
-      const collectionFee = parseNumber(document.getElementById('collectionFee').value) || 0;
-      const proRateFirst = document.getElementById('proRateFirst').checked;
-      const interestBasis = document.getElementById('interestBasis').value || '30360';
-      const roundPolicy = document.getElementById('roundPolicy') ? document.getElementById('roundPolicy').value : '1000';
-
-      document.getElementById('loanAmount').value = Number(loanAmount).toLocaleString('vi-VN');
-      document.getElementById('collectionFee').value = collectionFee ? Number(collectionFee).toLocaleString('vi-VN') : '';
-
-      const insuranceFee = loanAmount * (insurancePercent/100);
-      const totalLoan = loanAmount + insuranceFee;
-      const r = interestRate/100/12;
-      const EMI = totalLoan * r * Math.pow(1+r,months) / (Math.pow(1+r,months)-1);
+      const totalLoan = loanAmount*(1 + insurancePercent/100);
+      const monthlyRate = interestRate/12/100;
+      const EMI = totalLoan * monthlyRate / (1 - Math.pow(1+monthlyRate,-months));
+      const collectionFee = parseNumber(document.getElementById('collectionFee').value);
 
       renderSummary(totalLoan, collectionFee, EMI, months);
 
-      let schedule = [];
-      let outstanding = totalLoan;
-      let payDate = new Date(firstEmiDate);
-
-      if(proRateFirst){
-        const days = interestBasis==='30360' ? days360(disbursalDate, payDate) : daysBetween(disbursalDate, payDate);
-        const dailyRate = interestRate/100/360;
-        const interest = outstanding * dailyRate * days;
-        const principal = 0;
-        const total = interest + principal + collectionFee;
-        schedule.push({
-          ky: 1,
-          ngay: payDate.toLocaleDateString('vi-VN'),
-          goc: principal,
-          lai: interest,
-          tong: total,
-          phi: collectionFee,
-          conlai: outstanding
-        });
-        payDate = addMonthsKeepDay(payDate,1);
-        for(let i=2;i<=months;i++){
-          const interest = outstanding*r;
-          const principal = EMI - interest;
-          outstanding -= principal;
-          const total = EMI + collectionFee;
-          schedule.push({
-            ky: i,
-            ngay: payDate.toLocaleDateString('vi-VN'),
-            goc: principal,
-            lai: interest,
-            tong: total,
-            phi: collectionFee,
-            conlai: Math.max(outstanding,0)
-          });
-          payDate = addMonthsKeepDay(payDate,1);
-        }
-      } else {
-        for(let i=1;i<=months;i++){
-          const interest = outstanding*r;
-          const principal = EMI - interest;
-          outstanding -= principal;
-          const total = EMI + collectionFee;
-          schedule.push({
-            ky: i,
-            ngay: payDate.toLocaleDateString('vi-VN'),
-            goc: principal,
-            lai: interest,
-            tong: total,
-            phi: collectionFee,
-            conlai: Math.max(outstanding,0)
-          });
-          payDate = addMonthsKeepDay(payDate,1);
-        }
-      }
-
-      for(let s of schedule){
-        s.goc = roundByPolicy(s.goc, roundPolicy);
-        s.lai = roundByPolicy(s.lai, roundPolicy);
-        s.tong = roundByPolicy(s.tong, roundPolicy);
-        s.phi = roundByPolicy(s.phi, roundPolicy);
-        s.conlai = roundByPolicy(s.conlai, roundPolicy);
-      }
-
-      let html = '<table><thead><tr>'+
-        '<th>Kỳ</th><th>Ngày đóng</th><th>Gốc</th><th>Lãi</th><th>Phí</th><th>Tổng phải trả</th><th>Dư nợ còn lại</th>'+
-        '</tr></thead><tbody>';
-      for(let s of schedule){
+      // Render table
+      const resultEl = document.getElementById('result');
+      let html = '<table><thead><tr><th>Kỳ</th><th>Ngày</th><th>Dư nợ đầu kỳ</th><th>Gốc</th><th>Lãi</th><th>Phí thu hộ</th><th>Thanh toán</th></tr></thead><tbody>';
+      let balance = totalLoan;
+      for(let k=1;k<=months;k++){
+        const dueDate = addMonthsKeepDay(firstEmiDate, k-1);
+        const interest = roundByPolicy(balance*monthlyRate, document.getElementById('roundPolicy').value);
+        const principal = roundByPolicy(EMI - interest, document.getElementById('roundPolicy').value);
+        const pay = principal + interest + collectionFee;
         html += `<tr>
-          <td>${s.ky}</td>
-          <td>${s.ngay}</td>
-          <td>${viNumber(s.goc)}</td>
-          <td>${viNumber(s.lai)}</td>
-          <td>${viNumber(s.phi)}</td>
-          <td>${viNumber(s.tong)}</td>
-          <td>${viNumber(s.conlai)}</td>
+          <td>${k}</td>
+          <td>${dueDate.toLocaleDateString('vi-VN')}</td>
+          <td>${viNumber(balance)}</td>
+          <td>${viNumber(principal)}</td>
+          <td>${viNumber(interest)}</td>
+          <td>${viNumber(collectionFee)}</td>
+          <td>${viNumber(pay)}</td>
         </tr>`;
+        balance -= principal;
       }
       html += '</tbody></table>';
-      document.getElementById('result').innerHTML = html;
-      saveForm();
-    }
-
-    // ===== Export =====
-    function exportExcel(){
-      const table = document.querySelector('#result table');
-      if(!table) return;
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.table_to_sheet(table);
-      XLSX.utils.book_append_sheet(wb, ws, "LichThanhToan");
-      XLSX.writeFile(wb, "LichThanhToan.xlsx");
-    }
-    function exportCSV(){
-      const table = document.querySelector('#result table');
-      if(!table) return;
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.table_to_sheet(table);
-      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-      XLSX.writeFile(wb, "LichThanhToan.csv");
-    }
-    function exportPDF(){
-      const result = document.getElementById('result');
-      if(!result.querySelector('table')) return;
-      const opt = {
-        margin: 10,
-        filename: 'LichThanhToan.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-      };
-      html2pdf().set(opt).from(result).save();
-    }
-
-    // ===== Reset & today =====
-    function resetForm(){
-      for(const id of FIELDS){
-        const el = document.getElementById(id);
-        if(!el) continue;
-        if(el.type==='checkbox') el.checked = (id==='proRateFirst');
-        else if(id==='insurancePercent') el.value=7.7;
-        else if(id==='interestRate') el.value=52;
-        else if(id==='months') el.value=24;
-        else if(id==='collectionFee') el.value='12.000';
-        else el.value='';
-      }
-      localStorage.removeItem('loanFormV2');
-      document.getElementById('result').innerHTML = '';
-      document.getElementById('summary').innerHTML = '';
-      document.getElementById('alerts').innerHTML = '';
-    }
-    function fillToday(){
-      const today = new Date();
-      document.getElementById('disbursalDate').value = today.toISOString().split('T')[0];
-      const next = addMonthsKeepDay(today,1);
-      document.getElementById('firstEmiDate').value = next.toISOString().split('T')[0];
+      resultEl.innerHTML = html;
     }
 
     // ===== Events =====
-    window.onload = function(){
+    window.addEventListener('load', ()=>{
       loadForm();
-      document.getElementById('loanAmount').addEventListener('input', e=>formatLoanInput(e.target));
-      document.getElementById('collectionFee').addEventListener('input', e=>formatFeeInput(e.target));
-      document.getElementById('btnCalc').onclick = calculateLoan;
-      document.getElementById('btnExcel').onclick = exportExcel;
-      document.getElementById('btnCSV').onclick = exportCSV;
-      document.getElementById('btnPDF').onclick = exportPDF;
-      document.getElementById('btnReset').onclick = resetForm;
-      document.getElementById('btnToday').onclick = fillToday;
-    };
+
+      const loanInput = document.getElementById('loanAmount');
+      loanInput.addEventListener('input', ()=>formatLoanInput(loanInput));
+
+      const feeInput = document.getElementById('collectionFee');
+      feeInput.addEventListener('input', ()=>formatFeeInput(feeInput));
+
+      const inputs = FIELDS.map(id=>document.getElementById(id)).filter(Boolean);
+      inputs.forEach(el=>el.addEventListener('change', saveForm));
+
+      document.getElementById('btnCalc').addEventListener('click', calculateLoan);
+      document.getElementById('btnReset').addEventListener('click', ()=>{localStorage.removeItem('loanFormV2'); location.reload();});
+      document.getElementById('btnToday').addEventListener('click', ()=>{
+        const today = new Date();
+        document.getElementById('disbursalDate').valueAsDate = today;
+        document.getElementById('firstEmiDate').valueAsDate = addMonthsKeepDay(today,1);
+        saveForm();
+      });
+    });
   </script>
 </body>
 </html>

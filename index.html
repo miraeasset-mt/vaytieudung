@@ -199,7 +199,7 @@
   </div>
 
   <a href="https://zalo.me/0964307247" target="_blank" class="zalo-icon" aria-label="Liên hệ Zalo">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Icon_of_Zalo.svg/2048px-Icon_of_Zalo.svg.png" alt="Zalo" />
+    <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo" />
   </a>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -310,53 +310,77 @@
       let balance = totalLoan;
       for(let k=1;k<=months;k++){
         const dueDate = addMonthsKeepDay(firstEmiDate, k-1);
-        const interest = roundByPolicy(balance*monthlyRate, '1000');
-        let principal = roundByPolicy(EMI - interest, '1000');
-        if(k === months) principal = balance;
-        const pay = principal + interest + collectionFee;
-        html += `<tr><td>${k}</td><td>${dueDate.toLocaleDateString('vi-VN')}</td><td>${viNumber(principal)}</td><td>${viNumber(interest)}</td><td>${viNumber(collectionFee)}</td><td>${viNumber(pay)}</td></tr>`;
-        balance -= principal;
+        const interest = roundByPolicy(balance*monthlyRate,'1000');
+        const principal = roundByPolicy(EMI - interest,'1000');
+        balance = Math.max(0, balance-principal);
+        const totalPay = principal + interest + collectionFee;
+        html += `<tr>
+          <td>${k}</td>
+          <td>${dueDate.toLocaleDateString('vi-VN')}</td>
+          <td>${viNumber(principal)}</td>
+          <td>${viNumber(interest)}</td>
+          <td>${viNumber(collectionFee)}</td>
+          <td>${viNumber(totalPay)}</td>
+        </tr>`;
       }
-      html += '</tbody></table>';
-      resultEl.innerHTML = html;
+      html+='</tbody></table>';
+      resultEl.innerHTML=html;
+
+      saveForm();
     }
     function exportExcel(){
-      const tb = document.querySelector('#result table');
-      if(!tb){ alert('Chưa có dữ liệu.'); return; }
-      const wb = XLSX.utils.table_to_book(tb, {sheet:"LichThanhToan"});
-      XLSX.writeFile(wb,"LichThanhToan.xlsx");
+      const table = document.querySelector('#result table');
+      if(!table){alert('Không có dữ liệu để xuất');return;}
+      const wb = XLSX.utils.table_to_book(table,{sheet:"Lich Tra"});
+      XLSX.writeFile(wb,'Lich_Tra.xlsx');
     }
     function exportCSV(){
-      const tb = document.querySelector('#result table');
-      if(!tb){ alert('Chưa có dữ liệu.'); return; }
-      let csv='';
-      for(const r of tb.rows){ const cells = [...r.cells].map(c=>c.innerText); csv+=cells.join(',')+'\\n'; }
-      const blob = new Blob([csv],{type:'text/csv'});
-      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download="LichThanhToan.csv"; a.click(); URL.revokeObjectURL(url);
+      const table = document.querySelector('#result table');
+      if(!table){alert('Không có dữ liệu để xuất');return;}
+      const wb = XLSX.utils.table_to_book(table,{sheet:"Lich Tra"});
+      const csv = XLSX.utils.sheet_to_csv(wb.Sheets["Lich Tra"]);
+      const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'Lich_Tra.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
     function exportPDF(){
-      const el = document.getElementById('result');
-      if(!el.innerHTML){ alert('Chưa có dữ liệu.'); return; }
-      html2pdf().set({margin:0.2, filename:'LichThanhToan.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2}, jsPDF:{unit:'in',format:'a4',orientation:'landscape'}}).from(el).save();
+      const element = document.getElementById('result');
+      if(!element || !element.innerHTML.trim()){alert('Không có dữ liệu để xuất');return;}
+      const opt = { margin:0.4, filename:'Lich_Tra.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2}, jsPDF:{unit:'in',format:'a4',orientation:'portrait'} };
+      html2pdf().set(opt).from(element).save();
     }
-    function resetForm(){ localStorage.removeItem('loanFormV2'); location.reload(); }
+    function resetForm(){
+      for(const id of FIELDS){
+        const el = document.getElementById(id);
+        if(!el) continue;
+        if(el.type === 'checkbox') el.checked=false; else el.value='';
+      }
+      document.getElementById('alerts').innerHTML='';
+      document.getElementById('summary').innerHTML='';
+      document.getElementById('result').innerHTML='';
+      localStorage.removeItem('loanFormV2');
+    }
     function fillToday(){
-      const t = new Date(); const y=t.getFullYear(), m=t.getMonth(), d=t.getDate();
-      document.getElementById('disbursalDate').value = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const f = addMonthsKeepDay(t,1);
-      document.getElementById('firstEmiDate').value = `${f.getFullYear()}-${String(f.getMonth()+1).padStart(2,'0')}-${String(f.getDate()).padStart(2,'0')}`;
+      const today = new Date();
+      const d = document.getElementById('disbursalDate');
+      d.value = today.toISOString().split('T')[0];
+      const first = addMonthsKeepDay(today,1);
+      const f = document.getElementById('firstEmiDate');
+      f.value = first.toISOString().split('T')[0];
     }
-    window.addEventListener('DOMContentLoaded',()=>{
-      loadForm();
-      document.getElementById('btnCalc').onclick=()=>{saveForm(); calculateLoan();};
-      document.getElementById('btnExcel').onclick=exportExcel;
-      document.getElementById('btnCSV').onclick=exportCSV;
-      document.getElementById('btnPDF').onclick=exportPDF;
-      document.getElementById('btnReset').onclick=resetForm;
-      document.getElementById('btnToday').onclick=fillToday;
-      document.getElementById('loanAmount').addEventListener('input',function(){formatLoanInput(this);});
-      document.getElementById('collectionFee').addEventListener('input',function(){formatFeeInput(this);});
-    });
+    document.getElementById('loanAmount').addEventListener('input',e=>formatLoanInput(e.target));
+    document.getElementById('collectionFee').addEventListener('input',e=>formatFeeInput(e.target));
+    document.getElementById('btnCalc').addEventListener('click',calculateLoan);
+    document.getElementById('btnExcel').addEventListener('click',exportExcel);
+    document.getElementById('btnCSV').addEventListener('click',exportCSV);
+    document.getElementById('btnPDF').addEventListener('click',exportPDF);
+    document.getElementById('btnReset').addEventListener('click',resetForm);
+    document.getElementById('btnToday').addEventListener('click',fillToday);
+    loadForm();
   </script>
 </body>
 </html>

@@ -62,13 +62,13 @@
     }
     #result table{
       border-radius:0;
-      min-width:1000px;
+      min-width:1050px;
     }
 
     @media (max-width:600px){
       .container{padding:14px}
       table th, table td{padding:6px; font-size:12px}
-      #result table{min-width:800px}
+      #result table{min-width:900px}
     }
 
     @media print{
@@ -109,7 +109,7 @@
   </div>
 
   <div class="container" id="main">
-    <h1>Tính Lãi Suất Vay Team Ngọc Trân</h1>
+    <h1>Công Cụ Tính Lãi Suất-Team Ngọc Trân</h1>
     <p class="subtitle"><span class="pill">Bản nâng cao • Chuẩn vi-VN • Excel/PDF • 30/360 • Làm tròn</span></p>
 
     <div class="grid" role="form" aria-label="loan-form">
@@ -144,7 +144,7 @@
   <div id="result"></div>
 
   <div class="container">
-    <p class="note">* Bảng tính mang tính chất tham khảo. Điều khoản chính thức tùy theo hồ sơ và chính sách.</p>
+    <p class="note">* Bảng tính mang tính chất tham khảo. Điều khoản chính thức tùy theo hồ sơ và chính sách hiện tại.</p>
     <footer>© Copyright 2025 Võ Quốc Thiên. Giải Pháp Vay Tiêu Dùng Uy Tín & Linh Hoạt</footer>
   </div>
 
@@ -179,7 +179,7 @@
       document.getElementById('summary').innerHTML=`<div class="row">
         <div class="pill">Tổng vay + BH: <b>${viNumber(totalLoan)}</b> VND</div>
         <div class="pill">Số tháng vay: <b>${months}</b></div>
-        <div class="pill">Thanh toán mỗi kỳ ~ <b>${viNumber(Math.round(EMI))}</b> VND</div>
+        <div class="pill">Thanh toán mỗi kỳ ~ <b>${viNumber(Math.round(EMI+12000))}</b> VND</div>
       </div>`;
     }
 
@@ -193,18 +193,20 @@
       renderSummary(totalLoan,EMI,months);
 
       let balance=totalLoan;
-      let html='<table><thead><tr><th>Kỳ</th><th>Ngày</th><th>Gốc</th><th>Lãi</th><th>Thanh toán</th><th>Dư nợ cuối kỳ</th></tr></thead><tbody>';
+      let html='<table><thead><tr><th>Kỳ</th><th>Ngày</th><th>Gốc</th><th>Lãi</th><th>Phí thu hộ</th><th>Thanh toán</th><th>Dư nợ cuối kỳ</th></tr></thead><tbody>';
       for(let k=1;k<=months;k++){
         const dueDate=addMonthsKeepDay(firstEmiDate,k-1);
         const interest=roundByPolicy(balance*monthlyRate);
         const principal=roundByPolicy(EMI-interest);
         balance=Math.max(0,balance-principal);
-        const totalPay=principal+interest;
+        const fee=12000;
+        const totalPay=principal+interest+fee;
         html+=`<tr>
           <td>${k}</td>
           <td>${dueDate.toLocaleDateString('vi-VN')}</td>
           <td>${viNumber(principal)}</td>
           <td>${viNumber(interest)}</td>
+          <td>${viNumber(fee)}</td>
           <td>${viNumber(totalPay)}</td>
           <td>${viNumber(balance)}</td>
         </tr>`;

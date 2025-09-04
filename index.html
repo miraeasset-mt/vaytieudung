@@ -62,13 +62,13 @@
     }
     #result table{
       border-radius:0;
-      min-width:1100px;
+      min-width:900px;
     }
 
     @media (max-width:600px){
       .container{padding:14px}
       table th, table td{padding:6px; font-size:12px}
-      #result table{min-width:900px}
+      #result table{min-width:700px}
     }
 
     @media print{
@@ -109,7 +109,7 @@
   </div>
 
   <div class="container" id="main">
-    <h1>Tính Lãi Suất Vay - Team Ngọc Trân</h1>
+    <h1>Công Cụ Tính Lãi Suất-Team Ngọc Trân</h1>
     <p class="subtitle"><span class="pill">Bản nâng cao • Chuẩn vi-VN • Excel/PDF • 30/360 • Làm tròn</span></p>
 
     <div class="grid" role="form" aria-label="loan-form">
@@ -195,7 +195,7 @@
       renderSummary(totalLoan,EMI,months);
 
       let balance=totalLoan;
-      let html='<table><thead><tr><th>Kỳ</th><th>Ngày</th><th>Số ngày</th><th>Gốc</th><th>Lãi</th><th>Phí thu hộ</th><th>Thanh toán</th><th>Dư nợ cuối kỳ</th></tr></thead><tbody>';
+      let html='<table><thead><tr><th>Kỳ</th><th>Ngày</th><th>Gốc</th><th>Lãi</th><th>Thanh toán</th><th>Dư nợ cuối kỳ</th></tr></thead><tbody>';
 
       let prevDate=disbursalDate;
       for(let k=1;k<=months;k++){
@@ -205,9 +205,9 @@
         else{ dueDate=addMonthsKeepDay(firstEmiDate,months-1); }
 
         let days=daysBetween(prevDate,dueDate);
-        if(k<months-1) days=30; // các kỳ giữa 30 ngày
-        if(k===1) days=daysBetween(disbursalDate,firstEmiDate); // kỳ đầu theo thực tế
-        if(k===months) days=daysBetween(prevDate,dueDate); // kỳ cuối điều chỉnh số ngày dư
+        if(k<months-1) days=30; 
+        if(k===1) days=daysBetween(disbursalDate,firstEmiDate); 
+        if(k===months) days=daysBetween(prevDate,dueDate); 
 
         const interest=roundByPolicy(balance*interestRate*days/360/100);
         const principal=(k<months)? roundByPolicy(EMI-interest) : balance;
@@ -218,10 +218,8 @@
         html+=`<tr>
           <td>${k}</td>
           <td>${dueDate.toLocaleDateString('vi-VN')}</td>
-          <td>${days}</td>
           <td>${viNumber(principal)}</td>
           <td>${viNumber(interest)}</td>
-          <td>${viNumber(fee)}</td>
           <td>${viNumber(totalPay)}</td>
           <td>${viNumber(balance)}</td>
         </tr>`;
@@ -259,7 +257,6 @@
       document.getElementById('firstEmiDate').value=first.toISOString().split('T')[0];
     }
 
-    // format số tiền vay khi nhập
     document.getElementById('loanAmount').addEventListener('input', function(e){
       let value = e.target.value.replace(/\D/g,'');
       if(value){ e.target.value = Number(value).toLocaleString('vi-VN'); }

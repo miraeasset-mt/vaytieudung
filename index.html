@@ -65,17 +65,16 @@
       min-width:1100px;
     }
 
-    /* Responsive co nhỏ bảng trên mobile */
     @media (max-width:600px){
       .container{padding:14px}
       #result table{min-width:unset; font-size:10px}
       table th, table td{padding:4px 6px; font-size:10px}
-      #result th:nth-child(1), #result td:nth-child(1){ width:30px }   /* Kỳ */
-      #result th:nth-child(2), #result td:nth-child(2){ width:70px }   /* Ngày */
-      #result th:nth-child(3), #result td:nth-child(3){ width:65px }   /* Gốc */
-      #result th:nth-child(4), #result td:nth-child(4){ width:65px }   /* Lãi */
-      #result th:nth-child(5), #result td:nth-child(5){ width:75px }   /* Thanh toán */
-      #result th:nth-child(6), #result td:nth-child(6){ width:85px }   /* Dư nợ */
+      #result th:nth-child(1), #result td:nth-child(1){ width:30px }   
+      #result th:nth-child(2), #result td:nth-child(2){ width:70px }   
+      #result th:nth-child(3), #result td:nth-child(3){ width:65px }   
+      #result th:nth-child(4), #result td:nth-child(4){ width:65px }   
+      #result th:nth-child(5), #result td:nth-child(5){ width:75px }   
+      #result th:nth-child(6), #result td:nth-child(6){ width:85px }   
     }
 
     @media print{
@@ -155,7 +154,19 @@
     <footer><b>© Copyright 2025 Võ Quốc Thiên. Giải Pháp Vay Tiêu Dùng Uy Tín & Linh Hoạt</b></footer>
   </div>
 
-  <a href="https://zalo.me/0964307247" target="_blank" class="zalo-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo" /></a>
+  <a href="https://zalo.me/0964307247" target="_blank" class="zalo-icon">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo" />
+  </a>
+
+  <!-- Bộ đếm lượt truy cập Hitwebcounter (chèn dưới cùng) -->
+  <div style="text-align:center; margin:20px 0;">
+    <a href="https://www.hitwebcounter.com/compress-pdf" target="_blank">
+      <img src="https://hitwebcounter.com/counter/counter.php?page=21437099&style=0006&nbdigits=6&type=page&initCount=0" 
+           title="Compress" 
+           alt="Compress" 
+           border="0" />
+    </a>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -170,9 +181,7 @@
       return d;
     }
     function roundByPolicy(value){ return Math.round(value/1000)*1000; }
-
     function daysBetween(d1,d2){ return Math.round((d2-d1)/(1000*60*60*24)); }
-
     function validateInputs(){
       const disbursalDateStr=document.getElementById('disbursalDate').value;
       const firstEmiDateStr=document.getElementById('firstEmiDate').value;
@@ -183,7 +192,6 @@
       if(!disbursalDateStr||!firstEmiDateStr||loanAmount<=0||interestRate<=0||months<1) return null;
       return {disbursalDate:new Date(disbursalDateStr),firstEmiDate:new Date(firstEmiDateStr),loanAmount,insurancePercent,interestRate,months};
     }
-
     function renderSummary(totalLoan,EMI,months){
       document.getElementById('summary').innerHTML=`<div class="row">
         <div class="pill">Tổng vay + BH: <b>${viNumber(totalLoan)}</b> VND</div>
@@ -191,7 +199,6 @@
         <div class="pill">Thanh toán mỗi kỳ(đã bao gồm phí thu hộ) ~ <b>${viNumber(Math.round(EMI+12000))}</b> VND</div>
       </div>`;
     }
-
     function calculateLoan(){
       const values=validateInputs();
       if(!values){ alert("Vui lòng nhập đủ dữ liệu"); return; }
@@ -212,9 +219,9 @@
         else{ dueDate=addMonthsKeepDay(firstEmiDate,months-1); }
 
         let days=daysBetween(prevDate,dueDate);
-        if(k<months-1) days=30; // các kỳ giữa 30 ngày
-        if(k===1) days=daysBetween(disbursalDate,firstEmiDate); // kỳ đầu theo thực tế
-        if(k===months) days=daysBetween(prevDate,dueDate); // kỳ cuối điều chỉnh số ngày dư
+        if(k<months-1) days=30;
+        if(k===1) days=daysBetween(disbursalDate,firstEmiDate);
+        if(k===months) days=daysBetween(prevDate,dueDate);
 
         const interest=roundByPolicy(balance*interestRate*days/360/100);
         const principal=(k<months)? roundByPolicy(EMI-interest) : balance;
@@ -235,7 +242,6 @@
       html+='</tbody></table>';
       document.getElementById('result').innerHTML=html;
     }
-
     function exportExcel(){
       const table=document.querySelector('#result table');
       if(!table){alert('Không có dữ liệu');return;}
@@ -264,7 +270,6 @@
       document.getElementById('firstEmiDate').value=first.toISOString().split('T')[0];
     }
 
-    // format số tiền vay khi nhập
     document.getElementById('loanAmount').addEventListener('input', function(e){
       let value = e.target.value.replace(/\D/g,'');
       if(value){ e.target.value = Number(value).toLocaleString('vi-VN'); }

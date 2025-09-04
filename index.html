@@ -62,20 +62,20 @@
     }
     #result table{
       border-radius:0;
-      min-width:800px;
+      min-width:1100px;
     }
 
+    /* Responsive co nhỏ bảng trên mobile */
     @media (max-width:600px){
       .container{padding:14px}
-      table th, table td{padding:4px; font-size:11px}
-      #result table{min-width:600px}
-      /* chỉnh độ rộng từng cột */
-      #result th:nth-child(1), #result td:nth-child(1){ width:40px; }  /* Kỳ */
-      #result th:nth-child(2), #result td:nth-child(2){ width:80px; }  /* Ngày */
-      #result th:nth-child(3), #result td:nth-child(3){ width:75px; }  /* Gốc */
-      #result th:nth-child(4), #result td:nth-child(4){ width:75px; }  /* Lãi */
-      #result th:nth-child(5), #result td:nth-child(5){ width:85px; }  /* Thanh toán */
-      #result th:nth-child(6), #result td:nth-child(6){ width:90px; }  /* Dư nợ */
+      #result table{min-width:unset; font-size:10px}
+      table th, table td{padding:4px 6px; font-size:10px}
+      #result th:nth-child(1), #result td:nth-child(1){ width:30px }   /* Kỳ */
+      #result th:nth-child(2), #result td:nth-child(2){ width:70px }   /* Ngày */
+      #result th:nth-child(3), #result td:nth-child(3){ width:65px }   /* Gốc */
+      #result th:nth-child(4), #result td:nth-child(4){ width:65px }   /* Lãi */
+      #result th:nth-child(5), #result td:nth-child(5){ width:75px }   /* Thanh toán */
+      #result th:nth-child(6), #result td:nth-child(6){ width:85px }   /* Dư nợ */
     }
 
     @media print{
@@ -212,9 +212,9 @@
         else{ dueDate=addMonthsKeepDay(firstEmiDate,months-1); }
 
         let days=daysBetween(prevDate,dueDate);
-        if(k<months-1) days=30;
-        if(k===1) days=daysBetween(disbursalDate,firstEmiDate);
-        if(k===months) days=daysBetween(prevDate,dueDate);
+        if(k<months-1) days=30; // các kỳ giữa 30 ngày
+        if(k===1) days=daysBetween(disbursalDate,firstEmiDate); // kỳ đầu theo thực tế
+        if(k===months) days=daysBetween(prevDate,dueDate); // kỳ cuối điều chỉnh số ngày dư
 
         const interest=roundByPolicy(balance*interestRate*days/360/100);
         const principal=(k<months)? roundByPolicy(EMI-interest) : balance;
@@ -264,6 +264,7 @@
       document.getElementById('firstEmiDate').value=first.toISOString().split('T')[0];
     }
 
+    // format số tiền vay khi nhập
     document.getElementById('loanAmount').addEventListener('input', function(e){
       let value = e.target.value.replace(/\D/g,'');
       if(value){ e.target.value = Number(value).toLocaleString('vi-VN'); }

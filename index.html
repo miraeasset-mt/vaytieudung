@@ -109,7 +109,7 @@
   </div>
 
   <div class="container" id="main">
-    <h1>Công Cụ Tính Lãi-Team Ngọc Trân</h1>
+    <h1>Tính Lãi Suất Vay Team Ngọc Trân</h1>
     <p class="subtitle"><span class="pill">Bản nâng cao • Chuẩn vi-VN • Excel/PDF • 30/360 • Làm tròn</span></p>
 
     <div class="grid" role="form" aria-label="loan-form">
@@ -144,7 +144,7 @@
   <div id="result"></div>
 
   <div class="container">
-    <p class="note">* Bảng tính mang tính chất tham khảo. Điều khoản chính thức tùy theo hồ sơ và chính sách hiện tại.</p>
+    <p class="note">* Bảng tính mang tính chất tham khảo. Điều khoản chính thức tùy theo hồ sơ và chính sách.</p>
     <footer>© Copyright 2025 Võ Quốc Thiên. Giải Pháp Vay Tiêu Dùng Uy Tín & Linh Hoạt</footer>
   </div>
 
@@ -240,6 +240,16 @@
       const first=addMonthsKeepDay(today,1);
       document.getElementById('firstEmiDate').value=first.toISOString().split('T')[0];
     }
+
+    // format số tiền vay khi nhập
+    document.getElementById('loanAmount').addEventListener('input', function(e){
+      let value = e.target.value.replace(/\D/g,''); // chỉ giữ số
+      if(value){
+        e.target.value = Number(value).toLocaleString('vi-VN'); // thêm dấu chấm
+      } else {
+        e.target.value = '';
+      }
+    });
 
     document.getElementById('btnCalc').addEventListener('click',calculateLoan);
     document.getElementById('btnExcel').addEventListener('click',exportExcel);

@@ -13,7 +13,7 @@
     html,body{height:100%}
     body{margin:0; font-family:Arial, Helvetica, sans-serif; background:var(--bg); color:var(--text); line-height:1.5}
 
-    .marquee{width:100vw; position:relative; overflow:hidden; background:var(--primary); color:#fff; padding:12px 0; font-weight:bold; font-size:16px; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw}
+    .marquee{width:100vw; overflow:hidden; background:var(--primary); color:#fff; padding:12px 0; font-weight:bold; font-size:16px}
     .marquee-content{display:inline-block; white-space:nowrap; animation:marquee 15s linear infinite; padding-left:100vw}
     .marquee:hover .marquee-content{animation-play-state:paused}
     @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
@@ -62,13 +62,13 @@
     }
     #result table{
       border-radius:0;
-      min-width:900px;
+      min-width:1000px;
     }
 
     @media (max-width:600px){
       .container{padding:14px}
       table th, table td{padding:6px; font-size:12px}
-      #result table{min-width:640px}
+      #result table{min-width:800px}
     }
 
     @media print{
@@ -79,8 +79,6 @@
       #result{ margin:0; max-width:none; }
       #result table{ border-radius:0; }
     }
-
-    #phiThuHo, #quyUocTinhLai, #chinhSachLamTron { display: none; }
 
     .zalo-icon {
       position: fixed;
@@ -102,75 +100,27 @@
       border-radius: 50%;
       padding: 8px;
     }
-    .zalo-icon:hover {
-      transform: scale(1.1);
-    }
+    .zalo-icon:hover { transform: scale(1.1); }
   </style>
 </head>
 <body>
-  <div class="marquee" aria-label="thong-bao">
+  <div class="marquee">
     <div class="marquee-content">💸 Chào mừng bạn đến với công cụ Tính Lãi Suất Vay của Team Mirae Asset NGỌC TRÂN! 📞 Liên hệ Zalo: 0964307247 để được hỗ trợ nhanh chóng và uy tín! 🚀</div>
   </div>
 
   <div class="container" id="main">
-    <h1>Tính Lãi Suất Vay Team Ngọc Trân</h1>
-    <p class="subtitle"><span class="pill">Bản nâng cao • Chuẩn vi-VN • Excel/PDF • 30/360 (ẩn) • Làm tròn (ẩn)</span></p>
+    <h1>Công Cụ Tính Lãi-Team Ngọc Trân</h1>
+    <p class="subtitle"><span class="pill">Bản nâng cao • Chuẩn vi-VN • Excel/PDF • 30/360 • Làm tròn</span></p>
 
     <div class="grid" role="form" aria-label="loan-form">
-      <div>
-        <label>Ngày Giải Ngân</label>
-        <input type="date" id="disbursalDate" />
-      </div>
-      <div>
-        <label>Ngày Kỳ Đóng Đầu Tiên</label>
-        <input type="date" id="firstEmiDate" />
-      </div>
-
-      <div>
-        <label>Số Tiền Vay (VND)</label>
-        <input type="text" id="loanAmount" inputmode="numeric" placeholder="VD: 20.000.000" />
-      </div>
-
-      <div>
-        <label>% Bảo Hiểm Khoản Vay (nếu có)</label>
-        <input type="number" id="insurancePercent" value="7.7" step="0.1" min="0" />
-      </div>
-
-      <div>
-        <label>Lãi Suất (%/năm)</label>
-        <input type="number" id="interestRate" value="52" step="0.01" min="0.01" />
-      </div>
-
-      <div>
-        <label>Số Kỳ Vay (tháng)</label>
-        <input type="number" id="months" value="24" min="1" />
-      </div>
-
-      <div id="phiThuHo">
-        <label>Phí Thu Hộ mỗi kỳ (VND)</label>
-        <input type="text" id="collectionFee" value="12.000" inputmode="numeric" />
-      </div>
-
-      <div id="quyUocTinhLai">
-        <label>Quy ước tính lãi</label>
-        <select id="interestBasis">
-          <option value="30360">30/360 (mỗi tháng 30 ngày)</option>
-        </select>
-      </div>
-
+      <div><label>Ngày Giải Ngân</label><input type="date" id="disbursalDate" /></div>
+      <div><label>Ngày Kỳ Đóng Đầu Tiên</label><input type="date" id="firstEmiDate" /></div>
+      <div><label>Số Tiền Vay (VND)</label><input type="text" id="loanAmount" inputmode="numeric" placeholder="VD: 20.000.000" /></div>
+      <div><label>% Bảo Hiểm Khoản Vay (nếu có)</label><input type="number" id="insurancePercent" value="7.7" step="0.1" min="0" /></div>
+      <div><label>Lãi Suất (%/năm)</label><input type="number" id="interestRate" value="52" step="0.01" min="0.01" /></div>
+      <div><label>Số Kỳ Vay (tháng)</label><input type="number" id="months" value="24" min="1" /></div>
       <div class="row" style="align-items:flex-end">
-        <label style="width:100%">
-          <input type="checkbox" id="proRateFirst" checked /> Tính lãi theo ngày cho kỳ đầu (từ ngày giải ngân → kỳ 1)
-        </label>
-      </div>
-
-      <div id="chinhSachLamTron">
-        <label>Chính sách làm tròn</label>
-        <select id="roundPolicy">
-          <option value="none">Không làm tròn</option>
-          <option value="100">Làm tròn trăm (VND)</option>
-          <option value="1000" selected>Làm tròn nghìn (VND)</option>
-        </select>
+        <label style="width:100%"><input type="checkbox" id="proRateFirst" checked /> Tính lãi theo ngày cho kỳ đầu</label>
       </div>
     </div>
 
@@ -184,7 +134,7 @@
 
     <div class="toolbar">
       <label class="row" style="gap:6px"><input type="checkbox" id="remember" checked> Lưu thông tin nhập (LocalStorage)</label>
-      <button class="ghost" id="btnToday">Điền nhanh: giải ngân hôm nay, kỳ đầu +1 tháng</button>
+      <button class="ghost" id="btnToday">Điền nhanh hôm nay</button>
     </div>
 
     <div id="alerts" style="margin-top:12px"></div>
@@ -198,189 +148,105 @@
     <footer>© Copyright 2025 Võ Quốc Thiên. Giải Pháp Vay Tiêu Dùng Uy Tín & Linh Hoạt</footer>
   </div>
 
-  <a href="https://zalo.me/0964307247" target="_blank" class="zalo-icon" aria-label="Liên hệ Zalo">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo" />
-  </a>
+  <a href="https://zalo.me/0964307247" target="_blank" class="zalo-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo" /></a>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <script>
-    function viNumber(n){ return Number(n || 0).toLocaleString('vi-VN'); }
-    function formatLoanInput(el){
-      const original = el.value;
-      const neg = original.startsWith('-') ? '-' : '';
-      let digits = original.replace(/[^0-9]/g,'');
-      if(digits === '') { el.value = ''; return; }
-      try{ el.value = neg + Number(digits).toLocaleString('vi-VN'); }
-      catch(e){ el.value = neg + digits; }
-    }
-    function formatFeeInput(el){
-      let digits = el.value.replace(/[^0-9]/g,'');
-      el.value = digits ? Number(digits).toLocaleString('vi-VN') : '';
-    }
-    function parseNumber(str){
-      if(!str && str !== 0) return 0;
-      return Number(String(str).replace(/[.,\s]/g,'').replace(/[^\d-]/g,'')) || 0;
-    }
-    function daysInMonth(y,m){ return new Date(y, m+1, 0).getDate(); }
+    function viNumber(n){ return Number(n||0).toLocaleString('vi-VN'); }
+    function parseNumber(str){ return Number(String(str).replace(/[^\d]/g,''))||0; }
     function addMonthsKeepDay(date, months){
-      const d = new Date(date);
-      const day = d.getDate();
-      d.setDate(1);
-      d.setMonth(d.getMonth() + months);
-      d.setDate(Math.min(day, daysInMonth(d.getFullYear(), d.getMonth())));
+      const d=new Date(date); const day=d.getDate();
+      d.setDate(1); d.setMonth(d.getMonth()+months);
+      d.setDate(Math.min(day,new Date(d.getFullYear(),d.getMonth()+1,0).getDate()));
       return d;
     }
-    function roundByPolicy(value, policy){
-      if(policy === '1000') return Math.round(value/1000)*1000;
-      if(policy === '100') return Math.round(value/100)*100;
-      return Math.round(value);
-    }
-    const FIELDS = ['disbursalDate','firstEmiDate','loanAmount','insurancePercent','interestRate','months','collectionFee','interestBasis','proRateFirst','roundPolicy'];
-    function saveForm(){
-      if(!document.getElementById('remember').checked) return;
-      const data = {};
-      for(const id of FIELDS){
-        const el = document.getElementById(id);
-        if(!el) continue;
-        data[id] = el.type === 'checkbox' ? el.checked : el.value;
-      }
-      localStorage.setItem('loanFormV2', JSON.stringify(data));
-    }
-    function loadForm(){
-      const raw = localStorage.getItem('loanFormV2');
-      if(!raw) return;
-      try{
-        const data = JSON.parse(raw);
-        for(const id of FIELDS){
-          if(!(id in data)) continue;
-          const el = document.getElementById(id);
-          if(!el) continue;
-          if(el.type === 'checkbox') el.checked = !!data[id]; else el.value = data[id];
-        }
-      }catch{}
-    }
+    function roundByPolicy(value){ return Math.round(value/1000)*1000; }
+
     function validateInputs(){
-      const alerts = [];
-      const disbursalDateStr = document.getElementById('disbursalDate').value;
-      const firstEmiDateStr = document.getElementById('firstEmiDate').value;
-      const disbursalDate = disbursalDateStr ? new Date(disbursalDateStr) : null;
-      const firstEmiDate = firstEmiDateStr ? new Date(firstEmiDateStr) : null;
-      const loanAmount = parseNumber(document.getElementById('loanAmount').value);
-      const insurancePercent = Number(document.getElementById('insurancePercent').value);
-      const interestRate = Number(document.getElementById('interestRate').value);
-      const months = Number(document.getElementById('months').value);
-
-      if(!disbursalDate) alerts.push('Vui lòng chọn Ngày Giải Ngân.');
-      if(!firstEmiDate) alerts.push('Vui lòng chọn Ngày Kỳ Đóng Đầu Tiên.');
-      if(loanAmount <= 0) alerts.push('Số tiền vay phải > 0.');
-      if(months < 1) alerts.push('Số kỳ vay tối thiểu là 1.');
-      if(!(interestRate>0)) alerts.push('Lãi suất năm phải > 0.');
-      if(disbursalDate && firstEmiDate && firstEmiDate <= disbursalDate) alerts.push('Kỳ đóng đầu phải sau ngày giải ngân.');
-
-      return { valid: alerts.length === 0, alerts, values: {disbursalDate, firstEmiDate, loanAmount, insurancePercent, interestRate, months} };
+      const disbursalDateStr=document.getElementById('disbursalDate').value;
+      const firstEmiDateStr=document.getElementById('firstEmiDate').value;
+      const loanAmount=parseNumber(document.getElementById('loanAmount').value);
+      const insurancePercent=Number(document.getElementById('insurancePercent').value);
+      const interestRate=Number(document.getElementById('interestRate').value);
+      const months=Number(document.getElementById('months').value);
+      if(!disbursalDateStr||!firstEmiDateStr||loanAmount<=0||interestRate<=0||months<1) return null;
+      return {disbursalDate:new Date(disbursalDateStr),firstEmiDate:new Date(firstEmiDateStr),loanAmount,insurancePercent,interestRate,months};
     }
-    function renderSummary(totalLoan, collectionFee, EMI, months){
-      const details = [
-        `<div class="pill">Tổng vay + BH: <b>${viNumber(totalLoan)}</b> VND</div>`,
-        `<div class="pill">Số tháng vay: <b>${months}</b> tháng</div>`,
-        `<div class="pill">Tổng đóng/tháng (gồm phí): <b>${viNumber(Math.round(EMI + collectionFee))}</b> VND</div>`
-      ];
-      document.getElementById('summary').innerHTML = `<div class="row">${details.join('')}</div>`;
+
+    function renderSummary(totalLoan,EMI,months){
+      document.getElementById('summary').innerHTML=`<div class="row">
+        <div class="pill">Tổng vay + BH: <b>${viNumber(totalLoan)}</b> VND</div>
+        <div class="pill">Số tháng vay: <b>${months}</b></div>
+        <div class="pill">Thanh toán mỗi kỳ ~ <b>${viNumber(Math.round(EMI))}</b> VND</div>
+      </div>`;
     }
+
     function calculateLoan(){
-      const {valid, alerts, values} = validateInputs();
-      const alertsEl = document.getElementById('alerts');
-      if(!valid){
-        alertsEl.innerHTML = alerts.map(a=>`<div class="warn">${a}</div>`).join('');
-        return;
-      }else alertsEl.innerHTML='';
+      const values=validateInputs();
+      if(!values){ alert("Vui lòng nhập đủ dữ liệu"); return; }
+      const {firstEmiDate,loanAmount,insurancePercent,interestRate,months}=values;
+      const totalLoan=loanAmount*(1+insurancePercent/100);
+      const monthlyRate=interestRate/12/100;
+      const EMI=totalLoan*monthlyRate/(1-Math.pow(1+monthlyRate,-months));
+      renderSummary(totalLoan,EMI,months);
 
-      const {disbursalDate, firstEmiDate, loanAmount, insurancePercent, interestRate, months} = values;
-      const totalLoan = loanAmount*(1 + insurancePercent/100);
-      const monthlyRate = interestRate/12/100;
-      const EMI = totalLoan * monthlyRate / (1 - Math.pow(1+monthlyRate,-months));
-      const collectionFee = parseNumber(document.getElementById('collectionFee').value);
-
-      renderSummary(totalLoan, collectionFee, EMI, months);
-
-      const resultEl = document.getElementById('result');
-      let html = '<table><thead><tr><th>Kỳ</th><th>Ngày</th><th>Gốc</th><th>Lãi</th><th>Phí thu hộ</th><th>Thanh toán</th></tr></thead><tbody>';
-      let balance = totalLoan;
+      let balance=totalLoan;
+      let html='<table><thead><tr><th>Kỳ</th><th>Ngày</th><th>Gốc</th><th>Lãi</th><th>Thanh toán</th><th>Dư nợ cuối kỳ</th></tr></thead><tbody>';
       for(let k=1;k<=months;k++){
-        const dueDate = addMonthsKeepDay(firstEmiDate, k-1);
-        const interest = roundByPolicy(balance*monthlyRate,'1000');
-        const principal = roundByPolicy(EMI - interest,'1000');
-        balance = Math.max(0, balance-principal);
-        const totalPay = principal + interest + collectionFee;
-        html += `<tr>
+        const dueDate=addMonthsKeepDay(firstEmiDate,k-1);
+        const interest=roundByPolicy(balance*monthlyRate);
+        const principal=roundByPolicy(EMI-interest);
+        balance=Math.max(0,balance-principal);
+        const totalPay=principal+interest;
+        html+=`<tr>
           <td>${k}</td>
           <td>${dueDate.toLocaleDateString('vi-VN')}</td>
           <td>${viNumber(principal)}</td>
           <td>${viNumber(interest)}</td>
-          <td>${viNumber(collectionFee)}</td>
           <td>${viNumber(totalPay)}</td>
+          <td>${viNumber(balance)}</td>
         </tr>`;
       }
       html+='</tbody></table>';
-      resultEl.innerHTML=html;
-
-      saveForm();
+      document.getElementById('result').innerHTML=html;
     }
+
     function exportExcel(){
-      const table = document.querySelector('#result table');
-      if(!table){alert('Không có dữ liệu để xuất');return;}
-      const wb = XLSX.utils.table_to_book(table,{sheet:"Lich Tra"});
+      const table=document.querySelector('#result table');
+      if(!table){alert('Không có dữ liệu');return;}
+      const wb=XLSX.utils.table_to_book(table,{sheet:"LichTra"});
       XLSX.writeFile(wb,'Lich_Tra.xlsx');
     }
     function exportCSV(){
-      const table = document.querySelector('#result table');
-      if(!table){alert('Không có dữ liệu để xuất');return;}
-      const wb = XLSX.utils.table_to_book(table,{sheet:"Lich Tra"});
-      const csv = XLSX.utils.sheet_to_csv(wb.Sheets["Lich Tra"]);
-      const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'Lich_Tra.csv';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const table=document.querySelector('#result table');
+      if(!table){alert('Không có dữ liệu');return;}
+      const wb=XLSX.utils.table_to_book(table,{sheet:"LichTra"});
+      const csv=XLSX.utils.sheet_to_csv(wb.Sheets["LichTra"]);
+      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+      const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='Lich_Tra.csv';
+      document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
     function exportPDF(){
-      const element = document.getElementById('result');
-      if(!element || !element.innerHTML.trim()){alert('Không có dữ liệu để xuất');return;}
-      const opt = { margin:0.4, filename:'Lich_Tra.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2}, jsPDF:{unit:'in',format:'a4',orientation:'portrait'} };
-      html2pdf().set(opt).from(element).save();
+      const element=document.getElementById('result');
+      if(!element||!element.innerHTML.trim()){alert('Không có dữ liệu');return;}
+      html2pdf().set({margin:0.4,filename:'Lich_Tra.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2},jsPDF:{unit:'in',format:'a4',orientation:'portrait'}}).from(element).save();
     }
-    function resetForm(){
-      for(const id of FIELDS){
-        const el = document.getElementById(id);
-        if(!el) continue;
-        if(el.type === 'checkbox') el.checked=false; else el.value='';
-      }
-      document.getElementById('alerts').innerHTML='';
-      document.getElementById('summary').innerHTML='';
-      document.getElementById('result').innerHTML='';
-      localStorage.removeItem('loanFormV2');
-    }
+    function resetForm(){ location.reload(); }
     function fillToday(){
-      const today = new Date();
-      const d = document.getElementById('disbursalDate');
-      d.value = today.toISOString().split('T')[0];
-      const first = addMonthsKeepDay(today,1);
-      const f = document.getElementById('firstEmiDate');
-      f.value = first.toISOString().split('T')[0];
+      const today=new Date();
+      document.getElementById('disbursalDate').value=today.toISOString().split('T')[0];
+      const first=addMonthsKeepDay(today,1);
+      document.getElementById('firstEmiDate').value=first.toISOString().split('T')[0];
     }
-    document.getElementById('loanAmount').addEventListener('input',e=>formatLoanInput(e.target));
-    document.getElementById('collectionFee').addEventListener('input',e=>formatFeeInput(e.target));
+
     document.getElementById('btnCalc').addEventListener('click',calculateLoan);
     document.getElementById('btnExcel').addEventListener('click',exportExcel);
     document.getElementById('btnCSV').addEventListener('click',exportCSV);
     document.getElementById('btnPDF').addEventListener('click',exportPDF);
     document.getElementById('btnReset').addEventListener('click',resetForm);
     document.getElementById('btnToday').addEventListener('click',fillToday);
-    loadForm();
   </script>
 </body>
 </html>

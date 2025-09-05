@@ -273,7 +273,8 @@
     function fillToday(){
       const today=new Date();
       document.getElementById('disbursalDate').value=today.toISOString().split('T')[0];
-      const first=addMonthsKeepDay(today,1);
+      const first=new Date(today);
+      first.setDate(first.getDate()+30);
       document.getElementById('firstEmiDate').value=first.toISOString().split('T')[0];
     }
 
@@ -289,6 +290,9 @@
     document.getElementById('btnPDF').addEventListener('click',exportPDF);
     document.getElementById('btnReset').addEventListener('click',resetForm);
     document.getElementById('btnToday').addEventListener('click',fillToday);
+
+    // 👉 Tự động điền ngày giải ngân = hôm nay và kỳ đầu tiên = sau 30 ngày
+    window.addEventListener('DOMContentLoaded', fillToday);
   </script>
 </body>
 </html>

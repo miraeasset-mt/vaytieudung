@@ -78,7 +78,7 @@
     }
 
     @media print{
-      .marquee, .actions, .note, footer, .toolbar, .zalo{display:none !important}
+      .marquee, .actions, .note, footer, .toolbar, .zalo, .music-box{display:none !important}
       body{background:#fff}
       .container{box-shadow:none; background:#fff}
       thead { display: table-header-group; }
@@ -107,6 +107,40 @@
       padding: 8px;
     }
     .zalo-icon:hover { transform: scale(1.1); }
+
+    /* 👉 Nút nhạc */
+    .music-box {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 9999;
+    }
+    .music-label {
+      font-size: 12px;
+      color: #333;
+      margin-bottom: 4px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .music-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: #007bff;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      transition: background 0.3s;
+    }
+    .music-btn:hover { background: #005dc1; }
   </style>
 </head>
 <body>
@@ -158,6 +192,15 @@
   <a href="https://zalo.me/0964307247" target="_blank" class="zalo-icon">
     <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo" />
   </a>
+
+  <!-- Nút nhạc -->
+  <audio id="bg-music" loop>
+    <source src="https://miraeasset-mt.github.io/mymusic/nhacnen.mp3" type="audio/mpeg">
+  </audio>
+  <div class="music-box">
+    <div class="music-label">NGHE NHẠC GIẢI TRÍ TÍ</div>
+    <button id="music-toggle" class="music-btn">▶</button>
+  </div>
 
   <!-- Bộ đếm lượt truy cập Hitwebcounter bắt đầu từ 2534 -->
   <div style="text-align:center; margin:20px 0;">
@@ -259,7 +302,7 @@
       const table=document.querySelector('#result table');
       if(!table){alert('Không có dữ liệu');return;}
       const wb=XLSX.utils.table_to_book(table,{sheet:"LichTra"});
-      const csv=XLSX.utils.sheet_to_csv(wb.Sheets["LichTra"]);
+         const csv=XLSX.utils.sheet_to_csv(wb.Sheets["LichTra"]);
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
       const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='Lich_Tra.csv';
       document.body.appendChild(link); link.click(); document.body.removeChild(link);
@@ -293,6 +336,16 @@
 
     // 👉 Tự động điền ngày giải ngân = hôm nay và kỳ đầu tiên = sau 30 ngày
     window.addEventListener('DOMContentLoaded', fillToday);
+
+    // 👉 Bật/Tắt nhạc nền
+    const musicBtn = document.getElementById('music-toggle');
+    const bgMusic = document.getElementById('bg-music');
+    let playing = false;
+    musicBtn.addEventListener('click', ()=>{
+      if(playing){ bgMusic.pause(); musicBtn.textContent='▶'; playing=false; }
+      else{ bgMusic.play(); musicBtn.textContent='⏸'; playing=true; }
+    });
   </script>
 </body>
 </html>
+

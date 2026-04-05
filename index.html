@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -74,6 +73,7 @@
     .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
     label{display:block; font-weight:600; font-size:14px}
     input, select{width:100%; padding:10px 12px; margin-top:6px; font-size:16px; border:1px solid #cbd5e1; border-radius:10px; outline:none; background:#fff}
+    input::placeholder{color:#94a3b8; opacity:1}
     input:focus, select:focus{border-color:var(--primary); box-shadow:0 0 0 3px rgba(0,123,255,.12)}
     .row{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
     .actions{margin-top:14px; display:flex; flex-wrap:wrap; gap:10px}
@@ -161,7 +161,7 @@
 </head>
 <body>
   <div class="marquee">
-    <div class="marquee-content">💸 Chào mừng bạn đến với công cụ Tính Lãi Suất Vay của Team Mirae Asset NGỌC TRÂN! 📞 Liên hệ Zalo: 0964307247 để được hỗ trợ nhanh chóng và uy tín! 🚀</div>
+    <div class="marquee-content">💸 Chào mừng đến với công cụ Tính Lãi Suất của Team Mirae Asset NGỌC TRÂN! 📞 Liên hệ Zalo: 0964307247 để được hỗ trợ nhanh chóng và uy tín! 🚀</div>
   </div>
 
   <div class="tabbar-wrap">
@@ -173,7 +173,7 @@
 
   <div class="container panel active" id="panel-normal">
     <div class="title-wrap">
-      <h1>Công Cụ Tính Lãi Suất</h1>
+      <h1>Công Cụ Tính Lãi Suất PL</h1>
     </div>
     <p class="subtitle"><span class="pill">Bản nâng cao • Chuẩn vi-VN • Excel/PDF • 30/360 • Làm tròn</span></p>
 
@@ -217,7 +217,7 @@
     <div class="grid-3" role="form" aria-label="topup-form">
       <div>
         <label>Số tiền trả hàng tháng khoản vay hiện tại (EMI)</label>
-        <input type="text" id="topupCurrentEmi" value="2.536.000" inputmode="numeric" />
+        <input type="text" id="topupCurrentEmi" placeholder="VD 2.000.000" inputmode="numeric" />
       </div>
       <div>
         <label>Lãi suất khoản vay TOPUP (%/năm)</label>
@@ -229,7 +229,7 @@
       </div>
       <div>
         <label>Số tiền vay TOPUP (LOAN)</label>
-        <input type="text" id="topupLoan" value="20.000.000" inputmode="numeric" />
+        <input type="text" id="topupLoan" placeholder="VD 20.000.000" inputmode="numeric" />
       </div>
       <div>
         <label>Bảo hiểm khoản vay</label>
@@ -256,7 +256,7 @@
 
   <div class="container">
     <p class="note">* Bảng tính mang tính chất tham khảo. Điều khoản chính thức tùy theo hồ sơ và chính sách hiện tại.</p>
-    <footer><b>© Copyright 2026 . Thiết kế Bời Mr.Thiên</b></footer>
+    <footer><b>© Copyright 2026-Thiết Kế Bởi Mr.Thiên</b></footer>
   </div>
 
   <a href="https://zalo.me/0964307247" target="_blank" class="zalo-icon">
@@ -409,8 +409,16 @@
       const insuranceRatePct = Number(document.getElementById('topupInsuranceRate').value);
       const fee = 12000;
 
-      if(currentEmi <= 0 || annualRate < 0 || gracePeriod < 0 || loan <= 0){
+      if(currentEmi <= 0 || loan <= 0){
+        document.getElementById('topupSummary').innerHTML = '';
+        document.getElementById('topupResult').innerHTML = '';
+        return;
+      }
+
+      if(annualRate < 0 || gracePeriod < 0){
         alert('Vui lòng nhập đầy đủ dữ liệu TOPUP hợp lệ');
+        document.getElementById('topupSummary').innerHTML = '';
+        document.getElementById('topupResult').innerHTML = '';
         return;
       }
 
@@ -504,13 +512,14 @@
     }
 
     function resetTopup(){
-      document.getElementById('topupCurrentEmi').value = '2.536.000';
+      document.getElementById('topupCurrentEmi').value = '';
       document.getElementById('topupInterestRate').value = '41';
       document.getElementById('topupGracePeriod').value = '8';
-      document.getElementById('topupLoan').value = '20.000.000';
+      document.getElementById('topupLoan').value = '';
       document.getElementById('topupInsuranceYesNo').value = 'YES';
       document.getElementById('topupInsuranceRate').value = '7.7';
-      calculateTopup();
+      document.getElementById('topupSummary').innerHTML = '';
+      document.getElementById('topupResult').innerHTML = '';
     }
 
     ['loanAmount','topupCurrentEmi','topupLoan'].forEach(id=>{
@@ -533,7 +542,8 @@
 
     window.addEventListener('DOMContentLoaded', ()=>{
       fillToday();
-      calculateTopup();
+      document.getElementById('topupSummary').innerHTML = '';
+      document.getElementById('topupResult').innerHTML = '';
     });
   </script>
 </body>
